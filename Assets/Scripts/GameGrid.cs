@@ -190,7 +190,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
     }
 
    
-    public void RandomizeGridObjects()
+    private void RandomizeGridObjects()
     {
         for (int r = 0; r < numberOfRows; r++)
         {
@@ -230,7 +230,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
     }
 
 
-    public List<List<IGridObject>> GetMatchingGroups()
+    private List<List<IGridObject>> GetMatchingGroups()
     {
         List<List<IGridObject>> retVal = new List<List<IGridObject>>();
         foreach(IGridObject gridObject in this)
