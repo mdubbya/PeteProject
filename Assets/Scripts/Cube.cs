@@ -35,7 +35,6 @@ public class Cube : MonoBehaviour , IGridObject
     {
         destination = position;
         Vector3 spud = destination;
-        //gameObject.transform.position = position;
     }
 
     

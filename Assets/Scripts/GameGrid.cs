@@ -84,20 +84,33 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
     public void ResolveMatches()
     {
         var toResolve = GetMatchingGroups();
-        toResolve.ForEach(p => p.ForEach(q => q.Destroy()));
-        List<GridIndex> removed = new List<GridIndex>();
-        foreach (List<IGridObject> gridObjects in toResolve)
-        {
-            foreach (IGridObject gridObject in gridObjects)
-            {
-                GridIndex indexToRemove = IndexOf(gridObject);
-                removed.Add(indexToRemove);
-                _contents.Remove(indexToRemove);
-            }
-        }
 
-        ShiftDownGridObjects();
-        RefillColumns();
+        if (toResolve.Count > 0)
+        {
+            toResolve.ForEach(p => p.ForEach(q => q.Destroy()));
+            List<GridIndex> removed = new List<GridIndex>();
+            foreach (List<IGridObject> gridObjects in toResolve)
+            {
+                foreach (IGridObject gridObject in gridObjects)
+                {
+                    GridIndex indexToRemove = IndexOf(gridObject);
+                    removed.Add(indexToRemove);
+                    _contents.Remove(indexToRemove);
+                }
+            }
+            ShiftDownGridObjects();
+            RefillColumns();
+            ResolveMatches();
+        }
+    }
+
+
+    private void SpawnGridObject(int rowIndex, int columnIndex)
+    {
+        GridIndex newGridIndex = new GridIndex(rowIndex, columnIndex);
+        IGridObject gridObj = ((GameObject)Instantiate(gridObjectPrefab, _spawnPositions[columnIndex], gridObjectPrefab.transform.rotation)).GetComponent<IGridObject>();
+        gridObj.material = CubeMaterials.None;
+        _contents.Add(newGridIndex, gridObj);
     }
 
 
@@ -130,8 +143,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
             {
                 Vector3 position = new Vector3(_topLeft.x + (c * _gridObjectSizeX), _topLeft.y - (r * _gridObjectSizeY), _topLeft.z);
                 _gridPositions.Add(new GridIndex(r, c), position);
-                IGridObject gridObj = ((GameObject)Instantiate(gridObjectPrefab, _spawnPositions[c], gridObjectPrefab.transform.rotation)).GetComponent<IGridObject>();
-                _contents.Add(new GridIndex(r, c), gridObj);
+                SpawnGridObject(r, c);
             }
         }
     }
@@ -219,7 +231,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
         }
         return retVal;
     }
-
+    
    
     private void RandomizeGridObjects()
     {
@@ -255,7 +267,10 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
                     }
                 }
 
-                gridObject.material = (CubeMaterials)materials[UnityEngine.Random.Range(0, materials.Count - 1)];
+                if (gridObject.material == CubeMaterials.None)
+                {
+                    gridObject.material = (CubeMaterials)materials[UnityEngine.Random.Range(0, materials.Count - 1)];
+                }
             }
         }
     }
@@ -269,13 +284,14 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
             if ((from p in retVal where p.Contains(gridObject) select p).SingleOrDefault() == null)
             {
                 List<IGridObject> matches = GetMatchingGroup(gridObject);
-                if (matches.Count > 0)
-                {
+                //if (matches.Count > 3)
+                //{
                     retVal.Add(matches);
-                }
+                //}
             }
         }
-        return retVal;
+        
+        return retVal.Where(p => p.Count>=3).ToList();
     }
 
 
@@ -311,11 +327,13 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
                 {
                     GridIndex newGridIndex = new GridIndex(rowIndex, columnIndex);
                     IGridObject gridObj = ((GameObject)Instantiate(gridObjectPrefab, _spawnPositions[columnIndex], gridObjectPrefab.transform.rotation)).GetComponent<IGridObject>();
+                    gridObj.material = CubeMaterials.None;
                     _contents.Add(newGridIndex, gridObj);
-                    gridObj.MoveToPosition(_gridPositions[newGridIndex]);
                 }
             }
         }
+        RandomizeGridObjects();
+        PositionGridObjects();
     }
 
 

@@ -1,5 +1,6 @@
 ﻿public enum CubeMaterials
 {
+    None       = -1,
     RedCube    = 0,
     OrangeCube = 1,
     YellowCube = 2,
