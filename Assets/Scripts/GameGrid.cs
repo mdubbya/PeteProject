@@ -40,7 +40,18 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
     {
         return _contents.FirstOrDefault(x => x.Value == gridObject).Key;
     }
-    
+
+
+    public IEnumerator<IGridObject> GetEnumerator()
+    {
+        return (from p in _contents select p.Value).GetEnumerator();
+    }
+
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return (from p in _contents select p.Value).GetEnumerator();
+    }
 
 
     public void Start()
@@ -70,7 +81,27 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
     }
 
 
-    public void SpawnGridObjects()
+    public void ResolveMatches()
+    {
+        var toResolve = GetMatchingGroups();
+        toResolve.ForEach(p => p.ForEach(q => q.Destroy()));
+        List<GridIndex> removed = new List<GridIndex>();
+        foreach (List<IGridObject> gridObjects in toResolve)
+        {
+            foreach (IGridObject gridObject in gridObjects)
+            {
+                GridIndex indexToRemove = IndexOf(gridObject);
+                removed.Add(indexToRemove);
+                _contents.Remove(indexToRemove);
+            }
+        }
+
+        ShiftDownGridObjects();
+        RefillColumns();
+    }
+
+
+    private void SpawnGridObjects()
     {
         if (_contents != null)
         {
@@ -106,7 +137,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
     }
 
 
-    public IEnumerator PositionGridObjects()
+    private IEnumerator PositionGridObjects()
     {
         for (int r = numberOfRows - 1; r >= 0; r--)
         {
@@ -120,7 +151,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
     }
 
 
-    public IGridObject GetNeighbor(IGridObject gridObject, GridDirection dir, int index = 1)
+    private IGridObject GetNeighbor(IGridObject gridObject, GridDirection dir, int index = 1)
     {
         int indexVal = index;
         if (dir == GridDirection.left || dir == GridDirection.up)
@@ -172,7 +203,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
     }
 
 
-    public List<IGridObject> GetMatchingNeighbors(IGridObject gridObject)
+    private List<IGridObject> GetMatchingNeighbors(IGridObject gridObject)
     {
         List<IGridObject> retVal = new List<IGridObject>();
         foreach (GridDirection dir in Enum.GetValues(typeof(GridDirection)))
@@ -267,26 +298,6 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
     }
 
 
-    public void ResolveMatches()
-    {
-        var toResolve = GetMatchingGroups();
-        toResolve.ForEach(p => p.ForEach(q => q.Destroy()));
-        List<GridIndex> removed = new List<GridIndex>();
-        foreach(List<IGridObject> gridObjects in toResolve)
-        {
-            foreach (IGridObject gridObject in gridObjects)
-            {
-                GridIndex indexToRemove = IndexOf(gridObject);
-                removed.Add(indexToRemove);
-                _contents.Remove(indexToRemove);
-            }
-        }
-
-        ShiftDownGridObjects();
-        RefillColumns();
-    }
-
-
     private void RefillColumns()
     {
         for(int columnIndex=0; columnIndex < numberOfColumns; columnIndex++)
@@ -340,21 +351,6 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
         }
     }
 
-    
-    private void RepopulateGrid()
-    {
 
-    }
-
-
-    public IEnumerator<IGridObject> GetEnumerator()
-    {
-        return (from p in _contents select p.Value).GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return (from p in _contents select p.Value).GetEnumerator();
-    }
 }
 
