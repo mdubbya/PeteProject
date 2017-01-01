@@ -81,7 +81,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
     }
 
 
-    public void ResolveMatches()
+    public void ResolveMatches(bool iterate = true)
     {
         var toResolve = GetMatchingGroups();
 
@@ -100,7 +100,11 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
             }
             ShiftDownGridObjects();
             RefillColumns();
-            ResolveMatches();
+
+            if (iterate)
+            {
+                ResolveMatches();
+            }
         }
     }
 
@@ -109,7 +113,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
     {
         GridIndex newGridIndex = new GridIndex(rowIndex, columnIndex);
         IGridObject gridObj = ((GameObject)Instantiate(gridObjectPrefab, _spawnPositions[columnIndex], gridObjectPrefab.transform.rotation)).GetComponent<IGridObject>();
-        gridObj.material = CubeMaterials.None;
+        gridObj.material = GridObjectTypes.None;
         _contents.Add(newGridIndex, gridObj);
     }
 
@@ -183,7 +187,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
                 {
                     return this[xIndexVal, gridIndex.columnNumber];
                 }
-                catch(KeyNotFoundException ex)
+                catch(KeyNotFoundException)
                 {
                     return null;
                 }
@@ -202,7 +206,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
                 {
                     return this[gridIndex.rowNumber, yIndexVal];
                 }
-                catch(KeyNotFoundException ex)
+                catch(KeyNotFoundException)
                 {
                     return null;
                 }
@@ -221,9 +225,9 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
         foreach (GridDirection dir in Enum.GetValues(typeof(GridDirection)))
         {
             IGridObject obj = GetNeighbor(gridObject, dir);
-            if (obj != null)
+            if ((obj != null) && (gridObject.material != GridObjectTypes.None))
             {
-                if (obj.material == gridObject.material)
+                if (obj.material == gridObject.material )
                 {
                     retVal.Add(obj);
                 }
@@ -240,7 +244,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
             for (int c = 0; c < numberOfColumns; c++)
             {
                 IGridObject gridObject = _contents[new GridIndex(r, c)];
-                List<int> materials = new List<int>((int[])(Enum.GetValues(typeof(CubeMaterials))));
+                List<int> materials = new List<int>((int[])(Enum.GetValues(typeof(GridObjectTypes))));
 
                 IGridObject leftGridObject = GetNeighbor(gridObject, GridDirection.left);
                 if (leftGridObject != null)
@@ -267,9 +271,9 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
                     }
                 }
 
-                if (gridObject.material == CubeMaterials.None)
+                if (gridObject.material == GridObjectTypes.None)
                 {
-                    gridObject.material = (CubeMaterials)materials[UnityEngine.Random.Range(0, materials.Count - 1)];
+                    gridObject.material = (GridObjectTypes)materials[UnityEngine.Random.Range(0, materials.Count - 1)];
                 }
             }
         }
@@ -284,10 +288,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
             if ((from p in retVal where p.Contains(gridObject) select p).SingleOrDefault() == null)
             {
                 List<IGridObject> matches = GetMatchingGroup(gridObject);
-                //if (matches.Count > 3)
-                //{
-                    retVal.Add(matches);
-                //}
+                retVal.Add(matches);
             }
         }
         
@@ -327,7 +328,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
                 {
                     GridIndex newGridIndex = new GridIndex(rowIndex, columnIndex);
                     IGridObject gridObj = ((GameObject)Instantiate(gridObjectPrefab, _spawnPositions[columnIndex], gridObjectPrefab.transform.rotation)).GetComponent<IGridObject>();
-                    gridObj.material = CubeMaterials.None;
+                    gridObj.material = GridObjectTypes.None;
                     _contents.Add(newGridIndex, gridObj);
                 }
             }

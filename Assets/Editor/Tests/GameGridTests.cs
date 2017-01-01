@@ -24,34 +24,21 @@ class GameGridTests
         grid.Initialize();
     }
     
+
     private void SetUpMatchingGroups(List<List<GridIndex>> testObjects)
     {
         grid.Initialize();
-        int alternate = 0;
+
         foreach (IGridObject gridObject in grid)
         {
-            if (alternate == 0)
-            {
-                gridObject.material = CubeMaterials.GreenCube;
-                alternate++;
-            }
-            else if (alternate == 1)
-            {
-                gridObject.material = CubeMaterials.PurpleCube;
-                alternate++;
-            }
-            else if (alternate == 2)
-            {
-                gridObject.material = CubeMaterials.WhiteCube;
-                alternate = 0;
-            }
+            gridObject.material = GridObjectTypes.None;
         }
 
         foreach (List<GridIndex> indexList in testObjects)
         {
             foreach (GridIndex index in indexList)
             {
-                grid[index].material = CubeMaterials.BlueCube;
+                grid[index].material = GridObjectTypes.BlueCube;
             }
         }
     }
@@ -131,7 +118,7 @@ class GameGridTests
         grid.Initialize();
         SetUpMatchingGroups(new List<List<GridIndex>> { matches });
 
-        cascadeMatches.ForEach(p => grid[p].material = CubeMaterials.RedCube);
+        cascadeMatches.ForEach(p => grid[p].material = GridObjectTypes.RedCube);
 
         List<IGridObject> matchingGridObjects = (from p in matches select grid[p]).ToList();
         matchingGridObjects.AddRange((from p in cascadeMatches select grid[p]).ToList());
@@ -163,7 +150,8 @@ class GameGridTests
 
         List<IGridObject> shiftedObjects = (from p in indicesToShift select grid[p]).ToList();
 
-        grid.ResolveMatches();
+
+        grid.ResolveMatches(false);
 
         List<GridIndex> actualIndices = (from p in shiftedObjects select grid.IndexOf(p)).ToList();
 

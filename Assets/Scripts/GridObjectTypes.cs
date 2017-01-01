@@ -1,4 +1,4 @@
-﻿public enum CubeMaterials
+﻿public enum GridObjectTypes
 {
     None       = -1,
     RedCube    = 0,

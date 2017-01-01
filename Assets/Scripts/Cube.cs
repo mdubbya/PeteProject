@@ -5,7 +5,7 @@ using UnityEngine;
 public class Cube : MonoBehaviour , IGridObject
 {
     public float speed;
-    private CubeMaterials _material;
+    private GridObjectTypes _material;
     private Vector3 destination;
 
     public void Awake()
@@ -13,7 +13,7 @@ public class Cube : MonoBehaviour , IGridObject
         destination = transform.position;
     }
 
-    public CubeMaterials material
+    public GridObjectTypes material
     {
         get { return _material; }
         set

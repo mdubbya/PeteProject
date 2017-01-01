@@ -2,7 +2,7 @@
 
 public interface IGridObject
 {
-    CubeMaterials material
+    GridObjectTypes material
     {
         get;
         set;
