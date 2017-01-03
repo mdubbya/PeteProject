@@ -87,15 +87,21 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
 
         if (toResolve.Count > 0)
         {
-            toResolve.ForEach(p => p.ForEach(q => q.Destroy()));
-            List<GridIndex> removed = new List<GridIndex>();
-            foreach (List<IGridObject> gridObjects in toResolve)
+            foreach(var listOfMatches in toResolve)
             {
-                foreach (IGridObject gridObject in gridObjects)
+                foreach(var gridObject in listOfMatches)
                 {
-                    GridIndex indexToRemove = IndexOf(gridObject);
-                    removed.Add(indexToRemove);
-                    _contents.Remove(indexToRemove);
+                    //Found that when referring to a monobehaviour by its interface, one must cast it to
+                    //a monobehaviour when using the == or != operator.  These two operators are overloaded
+                    //in the monobehaviour class, and the correct overloads are not called when referring
+                    //to the object by its interface.  Note this is only an issue when comparing to null
+                    //and the underlying object is a destroyed monobehaviour.
+                    if((MonoBehaviour)gridObject != null)
+                    {
+                        gridObject.Destroy();
+                        GridIndex indexToRemove = IndexOf(gridObject);
+                        _contents.Remove(indexToRemove);
+                    }
                 }
             }
             ShiftDownGridObjects();
@@ -109,11 +115,46 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
     }
 
 
+    public void SwapGridObjects(IGridObject firstToSwap, IGridObject secondToSwap)
+    {
+        GridIndex firstIndex = IndexOf(firstToSwap);
+        GridIndex secondIndex = IndexOf(secondToSwap);
+        int rowDiff = firstIndex.rowNumber - secondIndex.rowNumber;
+        int columnDiff = firstIndex.columnNumber - secondIndex.columnNumber;
+        //Only swap if gridobject is only one "grid square" away
+        if ((rowDiff == 0 && Math.Abs(columnDiff) == 1) || (columnDiff == 0 && Math.Abs(rowDiff) == 1))
+        {
+            //Only swap if there is a possible match three (or more) to be made
+            List<IGridObject> matchingInRowForFirst = 
+                GetConnectedMatching(secondToSwap, firstToSwap).Where(p => IndexOf(p).rowNumber == IndexOf(secondToSwap).rowNumber).ToList();
+            List<IGridObject> matchingInColumnForFirst =
+                GetConnectedMatching(secondToSwap, firstToSwap).Where(p => IndexOf(p).columnNumber == IndexOf(secondToSwap).columnNumber).ToList();
+            List<IGridObject> matchingInRowForSecond =
+                GetConnectedMatching(firstToSwap, secondToSwap).Where(p => IndexOf(p).rowNumber == IndexOf(firstToSwap).rowNumber).ToList();
+            List<IGridObject> matchingInColumnForSecond =
+                GetConnectedMatching(firstToSwap, secondToSwap).Where(p => IndexOf(p).columnNumber == IndexOf(firstToSwap).columnNumber).ToList();
+            if (matchingInRowForFirst.Count >= 2 || matchingInRowForSecond.Count >= 2 ||
+                matchingInColumnForFirst.Count >= 2 || matchingInColumnForSecond.Count >= 2 )
+            {
+                //Do the swap
+                Vector3 newFirstPosition = _gridPositions[secondIndex];
+                Vector3 newSecondPosition = _gridPositions[firstIndex];
+                _contents.Remove(firstIndex);
+                _contents.Remove(secondIndex);
+                _contents.Add(firstIndex, secondToSwap);
+                _contents.Add(secondIndex, firstToSwap);
+                firstToSwap.MoveToPosition(newFirstPosition);
+                secondToSwap.MoveToPosition(newSecondPosition);
+            }
+        }
+    }
+
+
     private void SpawnGridObject(int rowIndex, int columnIndex)
     {
         GridIndex newGridIndex = new GridIndex(rowIndex, columnIndex);
         IGridObject gridObj = ((GameObject)Instantiate(gridObjectPrefab, _spawnPositions[columnIndex], gridObjectPrefab.transform.rotation)).GetComponent<IGridObject>();
-        gridObj.material = GridObjectTypes.None;
+        gridObj.gridObjectType = GridObjectType.None;
         _contents.Add(newGridIndex, gridObj);
     }
 
@@ -219,18 +260,34 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
     }
 
 
-    private List<IGridObject> GetMatchingNeighbors(IGridObject gridObject)
+    private List<IGridObject> GetConnectedMatching(IGridObject gridObject, IGridObject projectedMatchingObject = null)
     {
+        GridObjectType compareType = projectedMatchingObject == null ? gridObject.gridObjectType : projectedMatchingObject.gridObjectType;
         List<IGridObject> retVal = new List<IGridObject>();
+        if (projectedMatchingObject == null)
+        {
+            retVal.Add(gridObject);
+        }
         foreach (GridDirection dir in Enum.GetValues(typeof(GridDirection)))
         {
             IGridObject obj = GetNeighbor(gridObject, dir);
-            if ((obj != null) && (gridObject.material != GridObjectTypes.None))
+            while (obj != null)
             {
-                if (obj.material == gridObject.material )
+                if (compareType != GridObjectType.None)
                 {
-                    retVal.Add(obj);
+                    if (obj.gridObjectType == compareType)
+                    {
+                        if (obj != projectedMatchingObject)
+                        {
+                            retVal.Add(obj);
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
+                obj = GetNeighbor(obj, dir);
             }
         }
         return retVal;
@@ -244,7 +301,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
             for (int c = 0; c < numberOfColumns; c++)
             {
                 IGridObject gridObject = _contents[new GridIndex(r, c)];
-                List<int> materials = new List<int>((int[])(Enum.GetValues(typeof(GridObjectTypes))));
+                List<int> materials = new List<int>((int[])(Enum.GetValues(typeof(GridObjectType))));
 
                 IGridObject leftGridObject = GetNeighbor(gridObject, GridDirection.left);
                 if (leftGridObject != null)
@@ -252,9 +309,9 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
                     IGridObject nextLeftGridObject = GetNeighbor(gridObject, GridDirection.left,2);
                     if (nextLeftGridObject != null)
                     {
-                        if (leftGridObject.material == nextLeftGridObject.material)
+                        if (leftGridObject.gridObjectType == nextLeftGridObject.gridObjectType)
                         {
-                            materials.Remove((int)leftGridObject.material);
+                            materials.Remove((int)leftGridObject.gridObjectType);
                         }
                     }
                 }
@@ -264,16 +321,16 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
                     IGridObject nextUpGridObject = GetNeighbor(gridObject, GridDirection.up, 2);
                     if (nextUpGridObject != null)
                     {
-                        if (upGridObject.material == nextUpGridObject.material)
+                        if (upGridObject.gridObjectType == nextUpGridObject.gridObjectType)
                         {
-                            materials.Remove((int)upGridObject.material);
+                            materials.Remove((int)upGridObject.gridObjectType);
                         }
                     }
                 }
 
-                if (gridObject.material == GridObjectTypes.None)
+                if (gridObject.gridObjectType == GridObjectType.None)
                 {
-                    gridObject.material = (GridObjectTypes)materials[UnityEngine.Random.Range(0, materials.Count - 1)];
+                    gridObject.gridObjectType = (GridObjectType)materials[UnityEngine.Random.Range(0, materials.Count - 1)];
                 }
             }
         }
@@ -285,35 +342,22 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
         List<List<IGridObject>> retVal = new List<List<IGridObject>>();
         foreach(IGridObject gridObject in this)
         {
-            if ((from p in retVal where p.Contains(gridObject) select p).SingleOrDefault() == null)
+            
+            if (!((from p in retVal where p.Contains(gridObject) select p).Count() > 0))
             {
-                List<IGridObject> matches = GetMatchingGroup(gridObject);
-                retVal.Add(matches);
+                List<IGridObject> matches = GetConnectedMatching(gridObject);
+                List<IGridObject> rowMatches = (from p in matches where IndexOf(p).rowNumber == IndexOf(gridObject).rowNumber select p).ToList();
+                List<IGridObject> columnMatches = (from p in matches where IndexOf(p).columnNumber == IndexOf(gridObject).columnNumber select p).ToList();
+
+
+                retVal.Add(rowMatches);
+                retVal.Add(columnMatches);
             }
         }
         
         return retVal.Where(p => p.Count>=3).ToList();
     }
-
-
-    private List<IGridObject> GetMatchingGroup(IGridObject gridObject = null, List<IGridObject> matching = null)
-    {
-        if(matching == null)
-        {
-            matching = new List<IGridObject>();
-        }
-        List<IGridObject> newMatches = (from p in GetMatchingNeighbors(gridObject) where p.material==gridObject.material && !matching.Contains(p) select p).ToList();
-        if (newMatches != null && newMatches.Count > 0)
-        {
-            matching.AddRange(newMatches);
-            foreach (IGridObject match in newMatches)
-            {
-                matching = GetMatchingGroup(match, matching);
-            }
-        }
-        return matching;
-    }
-
+    
 
     private void RefillColumns()
     {
@@ -328,7 +372,7 @@ public class GameGrid : MonoBehaviour, IEnumerable<IGridObject>
                 {
                     GridIndex newGridIndex = new GridIndex(rowIndex, columnIndex);
                     IGridObject gridObj = ((GameObject)Instantiate(gridObjectPrefab, _spawnPositions[columnIndex], gridObjectPrefab.transform.rotation)).GetComponent<IGridObject>();
-                    gridObj.material = GridObjectTypes.None;
+                    gridObj.gridObjectType = GridObjectType.None;
                     _contents.Add(newGridIndex, gridObj);
                 }
             }
