@@ -1,10 +1,8 @@
 ﻿using NUnit.Framework;
-using NSubstitute.Core;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using NSubstitute;
-using System;
+using MatchThreeMiniGame;
 
 [TestFixture]
 class GameGridTests

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-
 public interface IGridObject
 {
     GridObjectType gridObjectType
