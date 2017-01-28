@@ -27,11 +27,18 @@ public class GameGridTests
     {
         grid.Populate();
 
-        foreach(IGridObject gridObject in grid)
+        foreach (IGridObject gridObject in grid)
         {
             Assert.NotNull(gridObject);
         }
 
         Assert.AreEqual(36, grid.Count());
+    }
+
+
+    [Test]
+    public void GetPathTest()
+    {
+
     }
 }

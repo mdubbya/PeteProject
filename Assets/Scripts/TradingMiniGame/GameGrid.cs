@@ -65,19 +65,19 @@ namespace TradingMiniGame
         public void PositionObjects()
         {
             IGridObject prefabScript = gridObjectPrefab.GetComponent<IGridObject>();
-            Vector3 bottomLeft = gameObject.transform.position - new Vector3(prefabScript.size.x * columns, prefabScript.size.y * rows);
             float ySpacing = prefabScript.size.y;
             float yOffset = prefabScript.size.y / 2;
             float xSpacing = prefabScript.size.x * 0.75f;
-            float xOffset = prefabScript.size.x / 2;
+            Vector3 bottomLeft = gameObject.transform.position;
+            bottomLeft = new Vector3(bottomLeft.x - xSpacing/2 * (columns-1), (bottomLeft.y) - ySpacing/4 * (rows-1), bottomLeft.z);
+           
+            
 
             for (int row = 0; row < rows; row++)
             {
                 for (int column = 0; column < columns; column++)
                 {
-                        
-                    Vector3 position = bottomLeft + new Vector3((xSpacing * column), bottomLeft.y + (ySpacing * row),bottomLeft.z);
-                    //if an uneven column number, offset to the left
+                    Vector3 position = bottomLeft + new Vector3((xSpacing * column), bottomLeft.y + (ySpacing * row));
                     if(column%2!=0)
                     {
                         position = new Vector3(position.x, position.y + yOffset, position.z);
