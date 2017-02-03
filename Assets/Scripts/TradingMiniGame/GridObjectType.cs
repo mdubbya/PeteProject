@@ -1,5 +1,8 @@
 ﻿public enum GridObjectType
 {
     None = -1,
-    RegularHexagon
+    HexagonNormal,
+    HexagonNS,
+    HexagonNESW,
+    HexagonNWSE
 };
