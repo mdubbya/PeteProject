@@ -19,6 +19,7 @@ namespace TradingMiniGame
             set { _rows = value; }
         }
 
+
         [SerializeField]
         private int _columns;
         public int columns
@@ -55,20 +56,18 @@ namespace TradingMiniGame
         }
 
 
-        public IGridObject SpawnGridObject(int row, int column)
+        public void SpawnGridObject(GridIndex index)
         {
-            GridIndex gridIndex = new GridIndex(row, column);
             GameObject spawnedObject = Instantiate(gridObjectPrefab.gameObject);
-            Vector3 position = _bottomLeft + new Vector3((_xSpacing * column), _bottomLeft.y + (_ySpacing * row));
-            if (column % 2 != 0)
+            Vector3 position = _bottomLeft + new Vector3((_xSpacing * index.columnNumber), _bottomLeft.y + (_ySpacing * index.rowNumber));
+            if (index.columnNumber % 2 != 0)
             {
                 position = new Vector3(position.x, position.y + _yOffset, position.z);
             }
 
             spawnedObject.transform.position = position;
 
-            _gridGameObjects.Add(gridIndex, spawnedObject);
-            return spawnedObject.GetComponent<IGridObject>(); ;
+            _gridGameObjects.Add(index, spawnedObject);
         }
     }
 }

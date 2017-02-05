@@ -1,18 +1,14 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+
 namespace TradingMiniGame
 {
     public interface IGridObject
     {
-        GridObjectType gridObjectType
-        {
-            get;
-            set;
-        }
+        float pathCost { get; set; }
 
-        int pathCost
-        {
-            get;
-            set;
-        }
+        List<GridDirection> permittedTravelDirections { get; }
+        List<GridIndex> neighbors { get; }
+
+        GridIndex this[GridDirection dir] { get; set; }
     }
 }

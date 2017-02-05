@@ -1,28 +1,22 @@
-﻿
-using System;
-using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TradingMiniGame
 {
     public class HexGridObject : IGridObject
     {
+        private Dictionary<GridDirection, GridIndex> _neighbors;
 
-        GridObjectType _gridObjectType;
-        public GridObjectType gridObjectType
+        public HexGridObject()
         {
-            get
-            {
-                return _gridObjectType;
-            }
-
-            set
-            {
-                _gridObjectType = value;
-            }
+            _neighbors = new Dictionary<GridDirection, GridIndex>();
+            _permittedTravelDirections = new List<GridDirection>();
+            _permittedTravelDirections.AddRange(Enum.GetValues(typeof(GridDirection)).Cast<GridDirection>());
         }
 
-        int _pathCost;
-        public int pathCost
+        float _pathCost;
+        public float pathCost
         {
             get
             {
@@ -32,6 +26,45 @@ namespace TradingMiniGame
             set
             {
                 _pathCost = value;
+            }
+        }
+
+
+        private List<GridDirection> _permittedTravelDirections;
+        public List<GridDirection> permittedTravelDirections
+        {
+            get
+            {
+                return _permittedTravelDirections;
+            }
+        }
+
+        public List<GridIndex> neighbors
+        {
+            get
+            {
+                return _neighbors.Values.ToList();
+            }
+        }
+
+        public GridIndex this[GridDirection dir]
+        {
+            get
+            {
+                return _neighbors[dir];
+            }
+
+            set
+            {
+                GridIndex neighbor;
+                if (_neighbors.TryGetValue(dir, out neighbor))
+                {
+                    _neighbors.Remove(dir);
+                }
+                else
+                {
+                    _neighbors.Add(dir, value);
+                }
             }
         }
     }

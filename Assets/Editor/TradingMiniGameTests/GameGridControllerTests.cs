@@ -3,6 +3,8 @@ using UnityEngine;
 using TradingMiniGame;
 using System.Linq;
 using NSubstitute;
+using Zenject;
+using System.Collections.Generic;
 
 [TestFixture]
 public class GameGridTests
@@ -12,23 +14,18 @@ public class GameGridTests
     [TestFixtureSetUp]
     public void Setup()
     {
+        IFactory<IGridObject> factorySub = Substitute.For<IFactory<IGridObject>>();
         IGameGrid gridSub = Substitute.For<IGameGrid>();
 
-
-        for(int row= 0; row < 6; row++)
-        {
-            for(int column =0; column < 6; column++)
-            {
-                IGridObject gridObjectSub = Substitute.For<IGridObject>();
-                gridObjectSub.pathCost.Returns(1);
-                gridObjectSub.gridObjectType.Returns(GridObjectType.HexagonNormal);
-                gridSub.SpawnGridObject(row, column).Returns(gridObjectSub);
-            }
-        }
-
-        var bob = gridSub.SpawnGridObject(0, 0);
-
-        grid = new GameGridController(gridSub);
+        factorySub.Create().ReturnsForAnyArgs(x => {
+            IGridObject gridObject = new HexGridObject();
+            gridObject.pathCost = float.MaxValue;
+            return gridObject;
+        });
+         
+        
+        grid = new GameGridController(gridSub,factorySub);
+        grid.BuildGrid(6, 6);
     }
     
 
@@ -45,15 +42,53 @@ public class GameGridTests
 
 
     [Test]
-    public void ReplaceObjectTest()
+    public void ReplaceGridObjectTest()
     {
-         
+             
     }
 
 
-    [Test] 
-    public void GetPathLengthTest()
+    static object[] GetPathLengthTestCases =
+    {
+        new object[] { new GridIndex(1,0), new GridIndex(3,5),
+            new List<GridIndex>() { new GridIndex(1,0), new GridIndex(1,1), new GridIndex(2,2),new GridIndex(2,3), new GridIndex(3,4),new GridIndex(3,5 )},
+            new List<float>() {1,1,1,1,1,1 },
+            5 },
+        new object[] { new GridIndex(1,0), new GridIndex(3,5),
+            new List<GridIndex>() { },
+            new List<float>() { },
+            0 }
+    };
+
+    
+    [TestCaseSource("GetPathLengthTestCases")] 
+    public void GetPathLengthTest(GridIndex start, GridIndex end, 
+        List<GridIndex> gridObjectCostToAlter, List<float> gridObjectCosts, float expected)
+    {
+        grid.start = grid[start];
+        grid.end = grid[end];
+
+        foreach(IGridObject obj in grid)
+        {
+            obj.pathCost = float.MaxValue;
+        }
+
+        for(int i=0; i < gridObjectCostToAlter.Count; i++)
+        {
+            grid[gridObjectCostToAlter[i]].pathCost = gridObjectCosts[i];
+        }        
+
+        float len = grid.GetShortestPath().Sum(p => grid[p].pathCost);
+
+        Assert.AreEqual(expected, len);
+    }
+
+
+    [Test]
+    public void GetPathValidTest()
     {
 
     }
+
+
 }
