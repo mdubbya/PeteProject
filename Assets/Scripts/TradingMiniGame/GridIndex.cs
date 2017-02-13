@@ -1,5 +1,8 @@
-﻿namespace TradingMiniGame
+﻿using System;
+
+namespace TradingMiniGame
 {
+    [Serializable]
     public struct GridIndex
     {
         public int rowNumber;

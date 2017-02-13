@@ -10,42 +10,28 @@ namespace TradingMiniGame
     public class GameGrid : MonoBehaviour, IGameGrid
     {
         public GameObject gridObjectPrefab;
+        new public Camera camera;
 
-        [SerializeField]
-        private int _rows;
-        public int rows
-        {
-            get { return _rows; }
-            set { _rows = value; }
-        }
-
-
-        [SerializeField]
-        private int _columns;
-        public int columns
-        {
-            get { return _columns; }
-            set { _columns = value; }
-        }
-        
         private float _ySpacing;
         private float _yOffset;
         private float _xSpacing;
         private Vector3 _bottomLeft;
-        private Dictionary<GridIndex,GameObject> _gridGameObjects;
+        private Dictionary<GameObject,GridIndex> _gridGameObjects;
         private IGameGridController _gameGridController;
 
-
-        public void Start()
+        public void Setup()
         {
-            _gridGameObjects = new Dictionary<GridIndex, GameObject>();
+            IGameSetup setup = GetComponent<IGameSetup>();
+            int rows = setup.rows;
+            int columns = setup.columns;
+
+            _gridGameObjects = new Dictionary<GameObject,GridIndex>();
             Vector3 size = gridObjectPrefab.GetComponent<MeshRenderer>().bounds.size;
             _ySpacing = size.y;
             _yOffset = size.y / 2;
             _xSpacing = size.x * 0.75f;
             _bottomLeft = gameObject.transform.position;
-            _bottomLeft = new Vector3(_bottomLeft.x - _xSpacing / 2 * (_columns - 1), (_bottomLeft.y) - _ySpacing / 4 * (_rows - 1), _bottomLeft.z);
-            _gameGridController.BuildGrid(rows, columns);
+            _bottomLeft = new Vector3(_bottomLeft.x - _xSpacing / 2 * (columns - 1), (_bottomLeft.y) - _ySpacing / 4 * (rows - 1), _bottomLeft.z);
         }
 
 
@@ -53,6 +39,7 @@ namespace TradingMiniGame
         public void Initialize(IGameGridController gameGridController)
         {
             _gameGridController = gameGridController;
+            Setup();
         }
 
 
@@ -67,7 +54,19 @@ namespace TradingMiniGame
 
             spawnedObject.transform.position = position;
 
-            _gridGameObjects.Add(index, spawnedObject);
+            _gridGameObjects.Add(spawnedObject,index);
+        }
+
+        
+        public void Update()
+        {
+            RaycastHit hit;
+            Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+
+            if(Physics.Raycast(ray, out hit) && _gridGameObjects.ContainsKey(hit.transform.gameObject))
+            {
+                
+            }
         }
     }
 }

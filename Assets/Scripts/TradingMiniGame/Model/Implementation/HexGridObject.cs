@@ -67,5 +67,18 @@ namespace TradingMiniGame
                 }
             }
         }
+
+        public void ClearNeighbors()
+        {
+            _neighbors.Clear();
+        }
+
+        public void RemoveNeighbor(GridDirection dir)
+        {
+            if(_neighbors.ContainsKey(dir))
+            {
+                _neighbors.Remove(dir);
+            }
+        }
     }
 }
