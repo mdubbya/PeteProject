@@ -11,6 +11,11 @@ namespace TradingMiniGame
     {
         private int _columns;
         private int _rows;
+        private Dictionary<GridIndex, IGridObject> _gridObjects;
+        private Dictionary<GridIndex, Dictionary<GridDirection,GridIndex>> _neighbors;
+        private Stack<GridIndex> _selectedIndices;
+        private IGameGrid _gameGrid;
+        private IFactory<IGridObject> _gridObjectFactory;
 
         private GridIndex _start;
         public GridIndex start
@@ -63,13 +68,6 @@ namespace TradingMiniGame
         }
 
 
-        private Dictionary<GridIndex, IGridObject> _gridObjects;
-        private Dictionary<GridIndex, List<GridIndex>> _neighbors;
-
-        private Stack<GridIndex> _selectedIndices;
-        private IGameGrid _gameGrid;
-        private IFactory<IGridObject> _gridObjectFactory;
-
         [Inject]
         public void Init(IGameGrid gameGrid, IFactory<IGridObject> gridObjectFactory)
         {
@@ -77,14 +75,16 @@ namespace TradingMiniGame
             _gameGrid = gameGrid;
             _gridObjects = new Dictionary<GridIndex, IGridObject>();
             _selectedIndices = new Stack<GridIndex>();
-            _neighbors = new Dictionary<GridIndex, List<GridIndex>>();
+            _neighbors = new Dictionary<GridIndex, Dictionary<GridDirection, GridIndex>>();
         }
 
 
         public void BuildGrid(int rows, int columns)
         {
+            _gridObjects.Clear();
             _selectedIndices.Clear();
             _selectedIndices.Push(start);
+            _neighbors.Clear();
             _rows = rows;
             _columns = columns;
             if(_start==null)
@@ -95,7 +95,6 @@ namespace TradingMiniGame
             {
                 _end = new GridIndex(rows-1, columns-1);
             }
-            _gridObjects.Clear();
             for (int row = 0; row < rows; row++)
             {
                 for (int column = 0; column < columns; column++)
@@ -103,13 +102,14 @@ namespace TradingMiniGame
                     GridIndex index = new GridIndex(row, column);
                     _gameGrid.SpawnGridObject(index);
                     IGridObject newGridObject = _gridObjectFactory.Create();
+                    _neighbors.Add(index, new Dictionary<GridDirection, GridIndex>());
                     
                     foreach(GridDirection dir in Enum.GetValues(typeof(GridDirection)))
                     {
                         GridIndex neighborIndex = _indexInDirection[dir](index);
                         if(neighborIndex.columnNumber>=0 && neighborIndex.rowNumber >=0)
                         {
-                            newGridObject[dir] = neighborIndex;
+                            _neighbors[index][dir] = neighborIndex;
                         }
                     }
 
@@ -136,7 +136,7 @@ namespace TradingMiniGame
             
             while (currentNode != null)
             {
-                List<GridIndex> currentUnvisited = (from p in currentNode.neighbors where unVisited.Contains(p) select p).ToList();
+                List<GridIndex> currentUnvisited = (from p in _neighbors[IndexOf(currentNode)].Values where unVisited.Contains(p) select p).ToList();
                 foreach (GridIndex unvisitedNode in currentUnvisited)
                 {
                     float dist = distancesFromStart[IndexOf(currentNode)] + this[unvisitedNode].pathCost;
@@ -195,7 +195,7 @@ namespace TradingMiniGame
             }
             else
             {
-                if (this[index].neighbors.Contains(_selectedIndices.Peek()))
+                if (_neighbors[index].Values.Contains(_selectedIndices.Peek()))
                 {
                     result = true;
                     _selectedIndices.Push(index);
@@ -224,6 +224,21 @@ namespace TradingMiniGame
             List<GridIndex> returnVal = _selectedIndices.ToList();
             returnVal.Reverse();
             return returnVal;
+        }
+
+        public void ClearNeighbors(GridIndex index)
+        {
+            _neighbors[index].Clear();
+        }
+
+        public void RemoveNeighbor(GridIndex index, GridDirection dir)
+        {
+            _neighbors[index].Remove(dir);
+        }
+
+        public List<GridIndex> GetNeighbors(GridIndex index)
+        {
+            return _neighbors[index].Values.ToList();
         }
 
         private static Dictionary<GridDirection, Func<GridIndex, GridIndex>> _indexInDirection = new Dictionary<GridDirection, Func<GridIndex, GridIndex>>

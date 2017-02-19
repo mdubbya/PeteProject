@@ -37,7 +37,7 @@ namespace TradingMiniGame
                     while (numToRemove > 0)
                     {
                         int removeIndex = Random.Range(0, availableDirections.Count);
-                        gridObject.RemoveNeighbor(availableDirections[removeIndex]);
+                        _gameGridController.RemoveNeighbor(_gameGridController.IndexOf(gridObject),availableDirections[removeIndex]);
                         availableDirections.RemoveAt(removeIndex);
                         numToRemove--;
                     }

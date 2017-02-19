@@ -18,7 +18,7 @@ public class GameGridTests
         IGameGrid gridSub = Substitute.For<IGameGrid>();
 
         factorySub.Create().ReturnsForAnyArgs(x => {
-            IGridObject gridObject = new HexGridObject();
+            IGridObject gridObject = new GridObject();
             gridObject.pathCost = float.MaxValue;
             return gridObject;
         });
@@ -53,9 +53,9 @@ public class GameGridTests
 
         foreach(GridIndex index in expectedNeighbors)
         {
-            Assert.Contains(index, grid[testIndex].neighbors);
+            Assert.Contains(index, grid.GetNeighbors(testIndex).ToList());
         }
-        Assert.False(grid[testIndex].neighbors.Contains(testIndex));
+        Assert.False(grid.GetNeighbors(testIndex).Contains(testIndex));
     }
 
 
@@ -135,7 +135,7 @@ public class GameGridTests
         for(int i=0; i < gridObjectCostToAlter.Count; i++)
         {
             grid[gridObjectCostToAlter[i]].pathCost = gridObjectCosts[i];
-            directionsToRemove[i].ForEach(p => grid[gridObjectCostToAlter[i]].RemoveNeighbor(p));
+            directionsToRemove[i].ForEach(p => grid.RemoveNeighbor(gridObjectCostToAlter[i],p));
         }
 
         List<GridIndex> path = grid.GetShortestPath();
@@ -175,11 +175,11 @@ public class GameGridTests
             obj.pathCost = 10;
         }
 
-        grid[2, 2].ClearNeighbors();
-        grid[3, 2].ClearNeighbors();
-        grid[2, 3].ClearNeighbors();
-        grid[3, 3].ClearNeighbors();
-        grid[2, 0].ClearNeighbors();
+        grid.ClearNeighbors(new GridIndex(2, 2));
+        grid.ClearNeighbors(new GridIndex(3, 2)); 
+        grid.ClearNeighbors(new GridIndex(2, 3)); 
+        grid.ClearNeighbors(new GridIndex(3, 3)); 
+        grid.ClearNeighbors(new GridIndex(2, 0)); 
 
         bool lastResult=false;
         foreach(GridIndex index in testPath)
@@ -247,11 +247,11 @@ public class GameGridTests
             obj.pathCost = 10;
         }
 
-        grid[2, 2].ClearNeighbors();
-        grid[3, 2].ClearNeighbors();
-        grid[2, 3].ClearNeighbors();
-        grid[3, 3].ClearNeighbors();
-        grid[2, 0].ClearNeighbors();
+        grid.ClearNeighbors(new GridIndex(2, 2));
+        grid.ClearNeighbors(new GridIndex(3, 2));
+        grid.ClearNeighbors(new GridIndex(2, 3));
+        grid.ClearNeighbors(new GridIndex(3, 3));
+        grid.ClearNeighbors(new GridIndex(2, 0));
 
         testPath.ForEach(p => grid.SelectIndex(p));
         List<GridIndex> actualPath = grid.GetSelectedPath();

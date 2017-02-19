@@ -11,7 +11,7 @@ public class TradingMiniGameInstaller : MonoInstaller<TradingMiniGameInstaller>
     {
         public IGridObject Create()
         {
-            return new HexGridObject();
+            return new GridObject();
         }
     }
 
