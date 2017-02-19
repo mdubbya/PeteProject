@@ -1,18 +1,14 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace TradingMiniGame
 {
-    public interface IGameGridController
+    public interface IGameGridController : IEnumerable, IEnumerable<IGridObject>
     {
         //collection related (IGameGrid should be collection of IGridObject)
         IGridObject this[GridIndex index] { get; }
         IGridObject this[int row, int column] { get; }
         GridIndex IndexOf(IGridObject gridObject);
-
-        bool pathValid { get; set; }
 
         GridIndex start { get; set; }
         GridIndex end { get; set; }

@@ -18,8 +18,10 @@ public class TradingMiniGameInstaller : MonoInstaller<TradingMiniGameInstaller>
     public override void InstallBindings()
     {
         Container.Bind<IFactory<IGridObject>>().To<GridObjectFactory>();
-        Container.Bind<IGameGrid>().To<GameGrid>().FromInstance(gameGrid.GetComponent<GameGrid>());
-        Container.Bind<IGameSetup>().To<GameSetup>().FromInstance(gameGrid.GetComponent<GameSetup>());
-        Container.Bind<IGameGridController>().To<GameGridController>();
+        Container.Bind<IGameGrid>().To<IGameGrid>().FromInstance(gameGrid.GetComponent<IGameGrid>());
+        Container.Bind<IGameSetup>().To<IGameSetup>().FromInstance(gameGrid.GetComponent<IGameSetup>());
+        GameGridController controller = new GameGridController();
+        Container.Bind<IGameGridController>().FromInstance( controller );
+        Container.Inject(controller);
     }
 }

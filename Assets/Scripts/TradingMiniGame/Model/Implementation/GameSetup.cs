@@ -39,6 +39,10 @@ namespace TradingMiniGame
             _gameGridController.start = new GridIndex(0, 0);
             _gameGridController.end = new GridIndex(5, 5);
             _gameGridController.BuildGrid(rows, columns);
+            foreach(IGameGridSetupModifier modifier in GetComponents<IGameGridSetupModifier>())
+            {
+                modifier.Modify();
+            }
         }
     }
 }

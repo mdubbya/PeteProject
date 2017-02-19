@@ -7,7 +7,7 @@ using Zenject;
 
 namespace TradingMiniGame
 {
-    public class GameGridController : IEnumerable, IEnumerable<IGridObject>, IGameGridController
+    public class GameGridController :  IGameGridController
     {
         private int _columns;
         private int _rows;
@@ -25,14 +25,6 @@ namespace TradingMiniGame
             get { return _end; }
             set { _end = value; }
         }
-
-        private bool _pathValid;
-        public bool pathValid
-        {
-            get { return _pathValid; }
-            set { _pathValid = value; }
-        }
-        
 
         public IGridObject this[GridIndex index]
         {
@@ -72,17 +64,20 @@ namespace TradingMiniGame
 
 
         private Dictionary<GridIndex, IGridObject> _gridObjects;
+        private Dictionary<GridIndex, List<GridIndex>> _neighbors;
+
         private Stack<GridIndex> _selectedIndices;
         private IGameGrid _gameGrid;
         private IFactory<IGridObject> _gridObjectFactory;
 
         [Inject]
-        public GameGridController(IGameGrid gameGrid, IFactory<IGridObject> gridObjectFactory)
+        public void Init(IGameGrid gameGrid, IFactory<IGridObject> gridObjectFactory)
         {
             _gridObjectFactory = gridObjectFactory;
             _gameGrid = gameGrid;
             _gridObjects = new Dictionary<GridIndex, IGridObject>();
             _selectedIndices = new Stack<GridIndex>();
+            _neighbors = new Dictionary<GridIndex, List<GridIndex>>();
         }
 
 
@@ -92,6 +87,14 @@ namespace TradingMiniGame
             _selectedIndices.Push(start);
             _rows = rows;
             _columns = columns;
+            if(_start==null)
+            {
+                _start = new GridIndex(0, 0);
+            }
+            if(_end==null)
+            {
+                _end = new GridIndex(rows-1, columns-1);
+            }
             _gridObjects.Clear();
             for (int row = 0; row < rows; row++)
             {
@@ -101,7 +104,7 @@ namespace TradingMiniGame
                     _gameGrid.SpawnGridObject(index);
                     IGridObject newGridObject = _gridObjectFactory.Create();
                     
-                    foreach(GridDirection dir in newGridObject.permittedTravelDirections)
+                    foreach(GridDirection dir in Enum.GetValues(typeof(GridDirection)))
                     {
                         GridIndex neighborIndex = _indexInDirection[dir](index);
                         if(neighborIndex.columnNumber>=0 && neighborIndex.rowNumber >=0)

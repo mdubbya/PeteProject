@@ -11,8 +11,6 @@ namespace TradingMiniGame
         public HexGridObject()
         {
             _neighbors = new Dictionary<GridDirection, GridIndex>();
-            _permittedTravelDirections = new List<GridDirection>();
-            _permittedTravelDirections.AddRange(Enum.GetValues(typeof(GridDirection)).Cast<GridDirection>());
         }
 
         float _pathCost;
@@ -29,15 +27,6 @@ namespace TradingMiniGame
             }
         }
 
-
-        private List<GridDirection> _permittedTravelDirections;
-        public List<GridDirection> permittedTravelDirections
-        {
-            get
-            {
-                return _permittedTravelDirections;
-            }
-        }
 
         public List<GridIndex> neighbors
         {

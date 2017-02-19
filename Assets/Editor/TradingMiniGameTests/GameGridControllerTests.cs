@@ -24,7 +24,8 @@ public class GameGridTests
         });
          
         
-        grid = new GameGridController(gridSub,factorySub);
+        grid = new GameGridController();
+        grid.Init(gridSub, factorySub);
     }
 
     static object[] BuildGridTestCases =

@@ -6,7 +6,6 @@ namespace TradingMiniGame
     {
         float pathCost { get; set; }
 
-        List<GridDirection> permittedTravelDirections { get; }
         List<GridIndex> neighbors { get; }
 
         void ClearNeighbors();
