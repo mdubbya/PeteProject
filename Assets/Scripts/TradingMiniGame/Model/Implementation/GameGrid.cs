@@ -17,29 +17,34 @@ namespace TradingMiniGame
         private float _xSpacing;
         private Vector3 _bottomLeft;
         private Dictionary<GameObject,GridIndex> _gridGameObjects;
+        private Dictionary<GridIndex, GameObject> _gridIndices;
         private IGameGridController _gameGridController;
+        
 
-        public void Setup()
+        [Inject]
+        public void Initialize(IGameGridController gameGridController)
         {
-            IGameSetup setup = GetComponent<IGameSetup>();
-            int rows = setup.rows;
-            int columns = setup.columns;
+            _gameGridController = gameGridController;
+        }
 
-            _gridGameObjects = new Dictionary<GameObject,GridIndex>();
+
+        public void Setup(int rows, int columns)
+        {
+            if (_gridGameObjects != null)
+            {
+                _gridGameObjects.Keys.ToList().ForEach(p => Destroy(p));
+            }
+
+            _gridGameObjects = new Dictionary<GameObject, GridIndex>();
+            _gridIndices = new Dictionary<GridIndex, GameObject>();
+            
+
             Vector3 size = gridObjectPrefab.GetComponent<MeshRenderer>().bounds.size;
             _ySpacing = size.y;
             _yOffset = size.y / 2;
             _xSpacing = size.x * 0.75f;
             _bottomLeft = gameObject.transform.position;
             _bottomLeft = new Vector3(_bottomLeft.x - _xSpacing / 2 * (columns - 1), (_bottomLeft.y) - _ySpacing / 4 * (rows - 1), _bottomLeft.z);
-        }
-
-
-        [Inject]
-        public void Initialize(IGameGridController gameGridController)
-        {
-            _gameGridController = gameGridController;
-            Setup();
         }
 
 
@@ -55,17 +60,39 @@ namespace TradingMiniGame
             spawnedObject.transform.position = position;
 
             _gridGameObjects.Add(spawnedObject,index);
+            _gridIndices.Add(index, spawnedObject);
         }
 
         
         public void Update()
         {
-            RaycastHit hit;
-            Ray ray = camera.ScreenPointToRay(Input.mousePosition);
-
-            if(Physics.Raycast(ray, out hit) && _gridGameObjects.ContainsKey(hit.transform.gameObject))
+            if(Input.GetMouseButton(1))
             {
-                
+                List<GameObject> selected = _gameGridController.GetShortestPath().Select(p => _gridIndices[p]).ToList();
+                selected.ForEach(p => p.GetComponent<Renderer>().material = GameResources.Load(GameResources.Materials.Red));
+            }
+
+            if (Input.GetMouseButton(0))
+            {
+                RaycastHit hit;
+                Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+
+                if (Physics.Raycast(ray, out hit))
+                {
+                    if (_gridGameObjects.ContainsKey(hit.transform.gameObject))
+                    {
+                        _gameGridController.SelectIndex(_gridGameObjects[hit.transform.gameObject]);
+                        List<GameObject> selected = _gameGridController.GetSelectedPath().Select(p => _gridIndices[p]).ToList();
+                        selected.ForEach(p => p.GetComponent<Renderer>().material = GameResources.Load(GameResources.Materials.Green));
+                        foreach(GameObject gObject in _gridGameObjects.Keys)
+                        {
+                            if(!selected.Contains(gObject))
+                            {
+                                gObject.GetComponent<Renderer>().material = GameResources.Load(GameResources.Materials.Blue);
+                            }
+                        }
+                    }
+                }
             }
         }
     }

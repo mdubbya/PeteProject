@@ -25,6 +25,12 @@ namespace TradingMiniGame
             
             while (!success)
             {
+                GridIndex randomStart = new GridIndex(Random.Range(0, _gameGridController.rows - 1), Random.Range(0, _gameGridController.columns - 1));
+                GridIndex randomEnd = new GridIndex(Random.Range(0, _gameGridController.rows - 1), Random.Range(0, _gameGridController.columns - 1));
+                _gameGridController.start = randomStart;
+                _gameGridController.end = randomEnd;
+                _gameGridController.BuildGrid(_gameGridController.rows,_gameGridController.columns);
+
                 if (_gameGridController.Count() == 0)
                 {
                     throw new UnityException("Grid has no contents.");
@@ -33,7 +39,7 @@ namespace TradingMiniGame
                 {
                     gridObject.pathCost = Random.Range(0, maxPathCost);
                     List<GridDirection> availableDirections = new List<GridDirection>(Enum.GetValues(typeof(GridDirection)).Cast<GridDirection>());
-                    int numToRemove = Random.Range(0, maxNeighborsRemoved);
+                    int numToRemove = Math.Min( Random.Range(0, maxNeighborsRemoved), Enum.GetValues(typeof(GridDirection)).Length);
                     while (numToRemove > 0)
                     {
                         int removeIndex = Random.Range(0, availableDirections.Count);

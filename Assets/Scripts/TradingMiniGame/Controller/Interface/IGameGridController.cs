@@ -10,6 +10,9 @@ namespace TradingMiniGame
         IGridObject this[int row, int column] { get; }
         GridIndex IndexOf(IGridObject gridObject);
 
+        int rows { get; }
+        int columns { get; }
+
         GridIndex start { get; set; }
         GridIndex end { get; set; }
 

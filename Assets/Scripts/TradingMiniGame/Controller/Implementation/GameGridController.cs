@@ -9,8 +9,7 @@ namespace TradingMiniGame
 {
     public class GameGridController :  IGameGridController
     {
-        private int _columns;
-        private int _rows;
+        
         private Dictionary<GridIndex, IGridObject> _gridObjects;
         private Dictionary<GridIndex, Dictionary<GridDirection,GridIndex>> _neighbors;
         private Stack<GridIndex> _selectedIndices;
@@ -29,6 +28,18 @@ namespace TradingMiniGame
         {
             get { return _end; }
             set { _end = value; }
+        }
+        
+        private int _columns;
+        public int columns
+        {
+            get { return _columns; }
+        }
+        
+        private int _rows;
+        public int rows
+        {
+            get { return _rows; }
         }
 
         public IGridObject this[GridIndex index]
@@ -73,20 +84,19 @@ namespace TradingMiniGame
         {
             _gridObjectFactory = gridObjectFactory;
             _gameGrid = gameGrid;
-            _gridObjects = new Dictionary<GridIndex, IGridObject>();
-            _selectedIndices = new Stack<GridIndex>();
-            _neighbors = new Dictionary<GridIndex, Dictionary<GridDirection, GridIndex>>();
         }
 
 
         public void BuildGrid(int rows, int columns)
         {
-            _gridObjects.Clear();
-            _selectedIndices.Clear();
-            _selectedIndices.Push(start);
-            _neighbors.Clear();
             _rows = rows;
             _columns = columns;
+            _gridObjects = new Dictionary<GridIndex, IGridObject>();
+            _selectedIndices = new Stack<GridIndex>();
+            _neighbors = new Dictionary<GridIndex, Dictionary<GridDirection, GridIndex>>();
+            _gameGrid.Setup(_rows, _columns);
+            _selectedIndices.Push(start);
+            
             if(_start==null)
             {
                 _start = new GridIndex(0, 0);
@@ -240,6 +250,7 @@ namespace TradingMiniGame
         {
             return _neighbors[index].Values.ToList();
         }
+        
 
         private static Dictionary<GridDirection, Func<GridIndex, GridIndex>> _indexInDirection = new Dictionary<GridDirection, Func<GridIndex, GridIndex>>
         {
