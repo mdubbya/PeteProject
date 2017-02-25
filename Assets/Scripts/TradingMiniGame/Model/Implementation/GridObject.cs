@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace TradingMiniGame
 {
-    public class GridObject : IGridObject
+    public class GridObject :  MonoBehaviour, IGridObject 
     {
         float _pathCost;
         public float pathCost

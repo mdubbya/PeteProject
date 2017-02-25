@@ -9,7 +9,6 @@ namespace TradingMiniGame
 {
     public class GameGrid : MonoBehaviour, IGameGrid
     {
-        public GameObject gridObjectPrefab;
         new public Camera camera;
 
         private float _ySpacing;
@@ -19,12 +18,15 @@ namespace TradingMiniGame
         private Dictionary<GameObject,GridIndex> _gridGameObjects;
         private Dictionary<GridIndex, GameObject> _gridIndices;
         private IGameGridController _gameGridController;
-        
+        private Vector3 _tileSize;
+        private IFactory<IGridObject> _gridObjectFactory;
 
         [Inject]
-        public void Initialize(IGameGridController gameGridController)
+        public void Initialize(IGameGridController gameGridController, IFactory<IGridObject> gridObjectFactory, Vector3 tileSize)
         {
             _gameGridController = gameGridController;
+            _gridObjectFactory = gridObjectFactory;
+            _tileSize = tileSize;
         }
 
 
@@ -38,29 +40,29 @@ namespace TradingMiniGame
             _gridGameObjects = new Dictionary<GameObject, GridIndex>();
             _gridIndices = new Dictionary<GridIndex, GameObject>();
             
-
-            Vector3 size = gridObjectPrefab.GetComponent<MeshRenderer>().bounds.size;
-            _ySpacing = size.y;
-            _yOffset = size.y / 2;
-            _xSpacing = size.x * 0.75f;
+            _ySpacing = _tileSize.y;
+            _yOffset = _tileSize.y / 2;
+            _xSpacing = _tileSize.x * 0.75f;
             _bottomLeft = gameObject.transform.position;
             _bottomLeft = new Vector3(_bottomLeft.x - _xSpacing / 2 * (columns - 1), (_bottomLeft.y) - _ySpacing / 4 * (rows - 1), _bottomLeft.z);
         }
 
 
-        public void SpawnGridObject(GridIndex index)
+        public IGridObject SpawnGridObject(GridIndex index)
         {
-            GameObject spawnedObject = Instantiate(gridObjectPrefab.gameObject);
+            IGridObject spawnedObject = _gridObjectFactory.Create();
             Vector3 position = _bottomLeft + new Vector3((_xSpacing * index.columnNumber), _bottomLeft.y + (_ySpacing * index.rowNumber));
             if (index.columnNumber % 2 != 0)
             {
                 position = new Vector3(position.x, position.y + _yOffset, position.z);
             }
 
-            spawnedObject.transform.position = position;
+            spawnedObject.gameObject.transform.position = position;
 
-            _gridGameObjects.Add(spawnedObject,index);
-            _gridIndices.Add(index, spawnedObject);
+            _gridGameObjects.Add(spawnedObject.gameObject,index);
+            _gridIndices.Add(index, spawnedObject.gameObject);
+
+            return spawnedObject;
         }
 
         

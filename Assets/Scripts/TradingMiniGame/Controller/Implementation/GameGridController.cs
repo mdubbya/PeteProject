@@ -14,7 +14,6 @@ namespace TradingMiniGame
         private Dictionary<GridIndex, Dictionary<GridDirection,GridIndex>> _neighbors;
         private Stack<GridIndex> _selectedIndices;
         private IGameGrid _gameGrid;
-        private IFactory<IGridObject> _gridObjectFactory;
 
         private GridIndex _start;
         public GridIndex start
@@ -82,7 +81,6 @@ namespace TradingMiniGame
         [Inject]
         public void Init(IGameGrid gameGrid, IFactory<IGridObject> gridObjectFactory)
         {
-            _gridObjectFactory = gridObjectFactory;
             _gameGrid = gameGrid;
         }
 
@@ -110,8 +108,7 @@ namespace TradingMiniGame
                 for (int column = 0; column < columns; column++)
                 {
                     GridIndex index = new GridIndex(row, column);
-                    _gameGrid.SpawnGridObject(index);
-                    IGridObject newGridObject = _gridObjectFactory.Create();
+                    IGridObject newGridObject = _gameGrid.SpawnGridObject(index);
                     _neighbors.Add(index, new Dictionary<GridDirection, GridIndex>());
                     
                     foreach(GridDirection dir in Enum.GetValues(typeof(GridDirection)))

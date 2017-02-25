@@ -7,7 +7,7 @@ namespace TradingMiniGame
 {
     public interface IGameGrid
     {
-        void SpawnGridObject(GridIndex index);
+        IGridObject SpawnGridObject(GridIndex index);
 
         void Setup(int rows, int columns);
     }
