@@ -4,8 +4,10 @@ namespace TradingMiniGame
 {
     public interface IGridObject
     {
-        float pathCost { get; set; }
+        int pathCost { get; set; }
 
         GameObject gameObject { get; }
+
+        GameResources.Materials material { get; set; }
     }
 }

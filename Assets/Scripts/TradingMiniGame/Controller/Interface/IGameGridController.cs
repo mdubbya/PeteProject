@@ -20,7 +20,10 @@ namespace TradingMiniGame
         void ClearSelection();
         void ClearNeighbors(GridIndex index);
         void RemoveNeighbor(GridIndex index, GridDirection dir);
-        List<GridIndex> GetNeighbors(GridIndex index);
+
+        List<GridDirection> GetAdjacentDisconnected(GridIndex index);
+        List<GridDirection> GetAdjacentConnected(GridIndex index);
+        GridIndex GetRelativeIndex(GridIndex index, GridDirection dir);
 
         List<GridIndex> GetShortestPath();
         List<GridIndex> GetSelectedPath();

@@ -19,7 +19,7 @@ public class GameGridTests
 
         factorySub.Create().ReturnsForAnyArgs(x => {
             IGridObject gridObject = new GridObject();
-            gridObject.pathCost = float.MaxValue;
+            gridObject.pathCost = int.MaxValue;
             return gridObject;
         });
          
@@ -31,16 +31,16 @@ public class GameGridTests
     static object[] BuildGridTestCases =
     {
         new object[] {new GridIndex(0,0),
-            new List<GridIndex>() { new GridIndex(0,1),new GridIndex(1,0) } },
+            new List<GridDirection>() { GridDirection.N,GridDirection.NE } },
         new object[] {new GridIndex(1,0),
-            new List<GridIndex>() { new GridIndex(2,0),new GridIndex(1,1),new GridIndex(0,1),new GridIndex(0,0) }},
+            new List<GridDirection>() { GridDirection.N,GridDirection.NE,GridDirection.SE,GridDirection.S }},
         new object[] {new GridIndex(5,5),
-            new List<GridIndex>() { new GridIndex(4,5),new GridIndex(5,4) }},
+            new List<GridDirection>() { GridDirection.S, GridDirection.SW}},
         new object[] {new GridIndex(4,5),
-            new List<GridIndex>() { new GridIndex(5,5), new GridIndex(5,4),new GridIndex(4,4),new GridIndex(3,5) } }
+            new List<GridDirection>() { GridDirection.N, GridDirection.NW, GridDirection.SW, GridDirection.S } }
     };
     [TestCaseSource("BuildGridTestCases")]
-    public void BuildGridTest(GridIndex testIndex, List<GridIndex> expectedNeighbors)
+    public void BuildGridTest(GridIndex testIndex, List<GridDirection> expectedNeighbors)
     {
         grid.start = new GridIndex(0, 0);
         grid.end = new GridIndex(5, 5);
@@ -51,11 +51,10 @@ public class GameGridTests
         }
         Assert.AreEqual(36, grid.Count());
 
-        foreach(GridIndex index in expectedNeighbors)
+        foreach(GridDirection index in expectedNeighbors)
         {
-            Assert.Contains(index, grid.GetNeighbors(testIndex).ToList());
+            Assert.False(grid.GetAdjacentDisconnected(testIndex).Contains(index));
         }
-        Assert.False(grid.GetNeighbors(testIndex).Contains(testIndex));
     }
 
 
@@ -70,7 +69,7 @@ public class GameGridTests
             new List<List<GridDirection>>() {
                 new List<GridDirection>(),new List<GridDirection>(),new List<GridDirection>(),
                 new List<GridDirection>(),new List<GridDirection>(),new List<GridDirection>() },//directionsToRemove
-            new List<float>() {1,1,1,1,1,1 }, //gridObjectCosts
+            new List<int>() {1,1,1,1,1,1 }, //gridObjectCosts
             true,
             5 },//expected
 
@@ -87,7 +86,7 @@ public class GameGridTests
                 new List<GridDirection>() { GridDirection.N,GridDirection.NW,GridDirection.S,GridDirection.SE,GridDirection.SW, GridDirection.NE },
                 new List<GridDirection>() ,
                 new List<GridDirection>() },
-            new List<float>() {1,1,1,1,1,1 }, //gridObjectCosts
+            new List<int>() {1,1,1,1,1,1 }, //gridObjectCosts
             true,
             24 },//expected
 
@@ -96,7 +95,7 @@ public class GameGridTests
             new GridIndex(3,5), //end
             new List<GridIndex>() { }, //gridObjectCostToAlter
             new List<List<GridDirection>>(), //directionsToRemove
-            new List<float>() { }, //gridObjectCosts
+            new List<int>() { }, //gridObjectCosts
             true,
             50 }, //expected
 
@@ -113,7 +112,7 @@ public class GameGridTests
                 new List<GridDirection>() { GridDirection.N,GridDirection.NE,GridDirection.NW,GridDirection.S,GridDirection.SE,GridDirection.SW },
                 new List<GridDirection>() { GridDirection.N,GridDirection.NE,GridDirection.NW,GridDirection.S,GridDirection.SE,GridDirection.SW },
                 new List<GridDirection>() { GridDirection.N,GridDirection.NE,GridDirection.NW,GridDirection.S,GridDirection.SE,GridDirection.SW } },
-            new List<float>() {1,1,1,1,1,1 }, //gridObjectCosts
+            new List<int>() {1,1,1,1,1,1 }, //gridObjectCosts
             false,
             0 } //expected
     };
@@ -121,7 +120,7 @@ public class GameGridTests
     
     [TestCaseSource("GetShortestPathTestCases")] 
     public void GetShortestPathTest(GridIndex start, GridIndex end, 
-        List<GridIndex> gridObjectCostToAlter, List<List<GridDirection>> directionsToRemove, List<float> gridObjectCosts, bool expectedPossible, float expected)
+        List<GridIndex> gridObjectCostToAlter, List<List<GridDirection>> directionsToRemove, List<int> gridObjectCosts, bool expectedPossible, float expected)
     {
         grid.start = start;
         grid.end = end;

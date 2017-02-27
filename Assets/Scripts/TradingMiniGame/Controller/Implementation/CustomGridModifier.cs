@@ -10,7 +10,7 @@ namespace TradingMiniGame
     public class CustomGridModifier : MonoBehaviour, IGameGridSetupModifier
     {
         private IGameGridController _gameGridController;
-        public float maxPathCost;
+        public int maxPathCost;
         public int maxNeighborsRemoved;
 
         [Inject]

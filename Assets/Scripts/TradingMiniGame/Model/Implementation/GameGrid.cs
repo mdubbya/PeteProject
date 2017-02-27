@@ -15,8 +15,7 @@ namespace TradingMiniGame
         private float _yOffset;
         private float _xSpacing;
         private Vector3 _bottomLeft;
-        private Dictionary<GameObject,GridIndex> _gridGameObjects;
-        private Dictionary<GridIndex, GameObject> _gridIndices;
+        private Dictionary<GridIndex, IGridObject> _gridObjects;
         private IGameGridController _gameGridController;
         private Vector3 _tileSize;
         private IFactory<IGridObject> _gridObjectFactory;
@@ -32,13 +31,12 @@ namespace TradingMiniGame
 
         public void Setup(int rows, int columns)
         {
-            if (_gridGameObjects != null)
+            if (_gridObjects != null)
             {
-                _gridGameObjects.Keys.ToList().ForEach(p => Destroy(p));
+                _gridObjects.Values.ToList().ForEach(p => Destroy(p.gameObject));
             }
-
-            _gridGameObjects = new Dictionary<GameObject, GridIndex>();
-            _gridIndices = new Dictionary<GridIndex, GameObject>();
+            
+            _gridObjects = new Dictionary<GridIndex, IGridObject>();
             
             _ySpacing = _tileSize.y;
             _yOffset = _tileSize.y / 2;
@@ -58,9 +56,8 @@ namespace TradingMiniGame
             }
 
             spawnedObject.gameObject.transform.position = position;
-
-            _gridGameObjects.Add(spawnedObject.gameObject,index);
-            _gridIndices.Add(index, spawnedObject.gameObject);
+            
+            _gridObjects.Add(index, spawnedObject);
 
             return spawnedObject;
         }
@@ -70,8 +67,10 @@ namespace TradingMiniGame
         {
             if(Input.GetMouseButton(1))
             {
-                List<GameObject> selected = _gameGridController.GetShortestPath().Select(p => _gridIndices[p]).ToList();
-                selected.ForEach(p => p.GetComponent<Renderer>().material = GameResources.Load(GameResources.Materials.Red));
+                _gameGridController.GetShortestPath().Where
+                    (p => _gameGridController.start != p && _gameGridController.end != p).Select
+                    (p => _gameGridController[p]).ToList().ForEach
+                    (p => p.material = GameResources.Materials.Red);
             }
 
             if (Input.GetMouseButton(0))
@@ -81,21 +80,24 @@ namespace TradingMiniGame
 
                 if (Physics.Raycast(ray, out hit))
                 {
-                    if (_gridGameObjects.ContainsKey(hit.transform.gameObject))
+                    if (_gridObjects.Select(p => p.Value.gameObject).Contains(hit.transform.gameObject))
                     {
-                        _gameGridController.SelectIndex(_gridGameObjects[hit.transform.gameObject]);
-                        List<GameObject> selected = _gameGridController.GetSelectedPath().Select(p => _gridIndices[p]).ToList();
-                        selected.ForEach(p => p.GetComponent<Renderer>().material = GameResources.Load(GameResources.Materials.Green));
-                        foreach(GameObject gObject in _gridGameObjects.Keys)
+                        _gameGridController.SelectIndex(_gridObjects.First(p => p.Value.gameObject==hit.transform.gameObject).Key);
+                        List<IGridObject> selected = _gameGridController.GetSelectedPath().Where
+                            (p => _gameGridController.start!=p && _gameGridController.end != p).Select(p => _gridObjects[p]).ToList();
+                        selected.ForEach(p => p.material = GameResources.Materials.Green);
+                        foreach(IGridObject gObject in _gridObjects.Select(p => p.Value).Where(p => !selected.Contains(p)))
                         {
                             if(!selected.Contains(gObject))
                             {
-                                gObject.GetComponent<Renderer>().material = GameResources.Load(GameResources.Materials.Blue);
+                                gObject.material = GameResources.Materials.Blue;
                             }
                         }
                     }
                 }
             }
+            _gridObjects[_gameGridController.start].material = GameResources.Materials.Green;
+            _gridObjects[_gameGridController.end].material = GameResources.Materials.Yellow;
         }
     }
 }

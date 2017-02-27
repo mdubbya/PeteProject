@@ -147,7 +147,10 @@ namespace TradingMiniGame
                 foreach (GridIndex unvisitedNode in currentUnvisited)
                 {
                     float dist = distancesFromStart[IndexOf(currentNode)] + this[unvisitedNode].pathCost;
-
+                    if(GetAdjacentDisconnected(IndexOf(currentNode)).Select(p => _indexInDirection[p](IndexOf(currentNode))).Contains(unvisitedNode))
+                    {
+                        dist = int.MaxValue;
+                    }
                     if (dist < distancesFromStart[unvisitedNode])
                     {
                         distancesFromStart[unvisitedNode] = dist;
@@ -243,11 +246,22 @@ namespace TradingMiniGame
             _neighbors[index].Remove(dir);
         }
 
-        public List<GridIndex> GetNeighbors(GridIndex index)
+        public List<GridDirection> GetAdjacentDisconnected(GridIndex index)
         {
-            return _neighbors[index].Values.ToList();
+            var enumValues = Enum.GetValues(typeof(GridDirection)).Cast<GridDirection>().ToList();
+            return enumValues.Where(p => !_neighbors[index].Keys.Contains(p)).ToList();
         }
-        
+
+
+        public List<GridDirection> GetAdjacentConnected(GridIndex index)
+        {
+            return _neighbors[index].Keys.ToList();
+        }
+
+        public GridIndex GetRelativeIndex(GridIndex index, GridDirection dir)
+        {
+            return _indexInDirection[dir](index);
+        }
 
         private static Dictionary<GridDirection, Func<GridIndex, GridIndex>> _indexInDirection = new Dictionary<GridDirection, Func<GridIndex, GridIndex>>
         {
