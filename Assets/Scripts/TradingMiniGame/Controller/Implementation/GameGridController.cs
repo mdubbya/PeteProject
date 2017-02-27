@@ -147,10 +147,7 @@ namespace TradingMiniGame
                 foreach (GridIndex unvisitedNode in currentUnvisited)
                 {
                     float dist = distancesFromStart[IndexOf(currentNode)] + this[unvisitedNode].pathCost;
-                    if(GetAdjacentDisconnected(IndexOf(currentNode)).Select(p => _indexInDirection[p](IndexOf(currentNode))).Contains(unvisitedNode))
-                    {
-                        dist = int.MaxValue;
-                    }
+                    
                     if (dist < distancesFromStart[unvisitedNode])
                     {
                         distancesFromStart[unvisitedNode] = dist;

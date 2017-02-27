@@ -114,8 +114,28 @@ public class GameGridTests
                 new List<GridDirection>() { GridDirection.N,GridDirection.NE,GridDirection.NW,GridDirection.S,GridDirection.SE,GridDirection.SW } },
             new List<int>() {1,1,1,1,1,1 }, //gridObjectCosts
             false,
-            0 } //expected
-    };
+            0 }, //expected
+
+        new object[]
+        {
+            new GridIndex(1,0),
+            new GridIndex(3,5),
+            new List<GridIndex>(){
+                new GridIndex(1,1), new GridIndex(2,2), new GridIndex(2,3), new GridIndex(3,4),
+                new GridIndex(2,1), new GridIndex(3,1), new GridIndex(4, 2), new GridIndex(4,3) },
+            new List<List<GridDirection>>(){
+                new List<GridDirection> () { GridDirection.NE },
+                new List<GridDirection>() { },
+                new List<GridDirection>() { },
+                new List<GridDirection>() { },
+                new List<GridDirection>() { },
+                new List<GridDirection>() { },
+                new List<GridDirection>() { },
+                new List<GridDirection>() { }},
+            new List<int>() {2,1,1,1,2,2,2,2 },
+            true,
+            10 }
+        };
 
     
     [TestCaseSource("GetShortestPathTestCases")] 
