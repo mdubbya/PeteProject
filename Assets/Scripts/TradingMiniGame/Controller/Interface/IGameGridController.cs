@@ -18,7 +18,6 @@ namespace TradingMiniGame
 
         void BuildGrid(int rows, int columns);
         void ClearSelection();
-        void ClearNeighbors(GridIndex index);
         void RemoveNeighbor(GridIndex index, GridDirection dir);
 
         List<GridDirection> GetAdjacentDisconnected(GridIndex index);

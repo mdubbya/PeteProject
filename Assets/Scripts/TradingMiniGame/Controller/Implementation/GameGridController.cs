@@ -227,10 +227,6 @@ namespace TradingMiniGame
             return returnVal;
         }
 
-        public void ClearNeighbors(GridIndex index)
-        {
-            _neighbors[index].Clear();
-        }
 
         public void RemoveNeighbor(GridIndex index, GridDirection dir)
         {
