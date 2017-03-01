@@ -64,31 +64,29 @@ public class GameGridTests
             new GridIndex(1,0), //start
             new GridIndex(3,5), //end
             new List<GridIndex>() { //gridObjectCostToAlter
-                new GridIndex(1,0), new GridIndex(1,1), new GridIndex(2,2),
-                new GridIndex(2,3), new GridIndex(3,4),new GridIndex(3,5 )},
+                new GridIndex(1,1), new GridIndex(2,2),
+                new GridIndex(2,3), new GridIndex(3,4)},
             new List<List<GridDirection>>() {
                 new List<GridDirection>(),new List<GridDirection>(),new List<GridDirection>(),
                 new List<GridDirection>(),new List<GridDirection>(),new List<GridDirection>() },//directionsToRemove
-            new List<int>() {1,1,1,1,1,1 }, //gridObjectCosts
+            new List<int>() {1,1,1,1}, //gridObjectCosts
             true,
-            5 },//expected
+            4 },//expected
 
         new object[] {
             new GridIndex(1,0), //start
             new GridIndex(3,5), //end
             new List<GridIndex>() { //gridObjectCostToAlter
-                new GridIndex(1,0), new GridIndex(1,1), new GridIndex(2,2),
-                new GridIndex(2,3), new GridIndex(3,4),new GridIndex(3,5 )},
+                new GridIndex(1,1), new GridIndex(2,2),
+                new GridIndex(2,3), new GridIndex(3,4)},
             new List<List<GridDirection>>() { //directionsToRemove
                 new List<GridDirection>() ,
                 new List<GridDirection>() ,
-                new List<GridDirection>() ,
                 new List<GridDirection>() { GridDirection.N,GridDirection.NW,GridDirection.S,GridDirection.SE,GridDirection.SW, GridDirection.NE },
-                new List<GridDirection>() ,
                 new List<GridDirection>() },
             new List<int>() {1,1,1,1,1,1 }, //gridObjectCosts
             true,
-            24 },//expected
+            23 },//expected
 
         new object[] {
             new GridIndex(1,0), //start
@@ -97,7 +95,7 @@ public class GameGridTests
             new List<List<GridDirection>>(), //directionsToRemove
             new List<int>() { }, //gridObjectCosts
             true,
-            50 }, //expected
+            40 }, //expected
 
         new object[] {
             new GridIndex(1,0), //start
@@ -119,7 +117,7 @@ public class GameGridTests
         new object[]
         {
             new GridIndex(1,0),
-            new GridIndex(3,5),
+            new GridIndex(4,4),
             new List<GridIndex>(){
                 new GridIndex(1,1), new GridIndex(2,2), new GridIndex(2,3), new GridIndex(3,4),
                 new GridIndex(2,1), new GridIndex(3,1), new GridIndex(4, 2), new GridIndex(4,3) },
@@ -134,7 +132,7 @@ public class GameGridTests
                 new List<GridDirection>() { }},
             new List<int>() {2,1,1,1,2,2,2,2 },
             true,
-            10 }
+            7 }
         };
 
     
@@ -150,6 +148,8 @@ public class GameGridTests
         {
             obj.pathCost = 10;
         }
+        grid[end].pathCost = 0;
+        grid[start].pathCost = 0;
 
         for(int i=0; i < gridObjectCostToAlter.Count; i++)
         {
@@ -178,7 +178,6 @@ public class GameGridTests
             new GridIndex(3, 5)}, true },
         new object[] { new List<GridIndex>() { new GridIndex(1, 2) }, false },
         new object[] { new List<GridIndex>() { new GridIndex(3, 5) }, false },
-        new object[] { new List<GridIndex>() { new GridIndex(2, 0) }, false },
         new object[] { new List<GridIndex>() { new GridIndex(1, 1), new GridIndex(2, 2) }, false }
     };
 
@@ -193,12 +192,21 @@ public class GameGridTests
         {
             obj.pathCost = 10;
         }
-
-        grid.ClearNeighbors(new GridIndex(2, 2));
-        grid.ClearNeighbors(new GridIndex(3, 2)); 
-        grid.ClearNeighbors(new GridIndex(2, 3)); 
-        grid.ClearNeighbors(new GridIndex(3, 3)); 
-        grid.ClearNeighbors(new GridIndex(2, 0)); 
+        
+        grid.RemoveNeighbor(new GridIndex(1, 1), GridDirection.NE);
+        grid.RemoveNeighbor(new GridIndex(2, 1), GridDirection.NE);
+        grid.RemoveNeighbor(new GridIndex(2, 1), GridDirection.SE);
+        grid.RemoveNeighbor(new GridIndex(3, 1), GridDirection.SE);
+        grid.RemoveNeighbor(new GridIndex(4, 2), GridDirection.S);
+        grid.RemoveNeighbor(new GridIndex(4, 2), GridDirection.SE);
+        grid.RemoveNeighbor(new GridIndex(4, 3), GridDirection.S);
+        grid.RemoveNeighbor(new GridIndex(4, 4), GridDirection.SW);
+        grid.RemoveNeighbor(new GridIndex(3, 4), GridDirection.NW);
+        grid.RemoveNeighbor(new GridIndex(3, 4), GridDirection.SW);
+        grid.RemoveNeighbor(new GridIndex(2, 4), GridDirection.NW);
+        grid.RemoveNeighbor(new GridIndex(1, 3), GridDirection.N);
+        grid.RemoveNeighbor(new GridIndex(1, 3), GridDirection.NW);
+        grid.RemoveNeighbor(new GridIndex(1, 2), GridDirection.N);
 
         bool lastResult=false;
         foreach(GridIndex index in testPath)
@@ -238,11 +246,6 @@ public class GameGridTests
         },
         new object[] 
         {
-            new List<GridIndex>() { new GridIndex(2, 0) },
-            new List<GridIndex>() {new GridIndex(1,0) }
-        },
-        new object[] 
-        {
             new List<GridIndex>() { new GridIndex(1, 1), new GridIndex(2, 2) },
             new List<GridIndex>() {new GridIndex(1,0), new GridIndex(1, 1) }
         },
@@ -266,11 +269,20 @@ public class GameGridTests
             obj.pathCost = 10;
         }
 
-        grid.ClearNeighbors(new GridIndex(2, 2));
-        grid.ClearNeighbors(new GridIndex(3, 2));
-        grid.ClearNeighbors(new GridIndex(2, 3));
-        grid.ClearNeighbors(new GridIndex(3, 3));
-        grid.ClearNeighbors(new GridIndex(2, 0));
+        grid.RemoveNeighbor(new GridIndex(1, 1), GridDirection.NE);
+        grid.RemoveNeighbor(new GridIndex(2, 1), GridDirection.NE);
+        grid.RemoveNeighbor(new GridIndex(2, 1), GridDirection.SE);
+        grid.RemoveNeighbor(new GridIndex(3, 1), GridDirection.SE);
+        grid.RemoveNeighbor(new GridIndex(4, 2), GridDirection.S);
+        grid.RemoveNeighbor(new GridIndex(4, 2), GridDirection.SE);
+        grid.RemoveNeighbor(new GridIndex(4, 3), GridDirection.S);
+        grid.RemoveNeighbor(new GridIndex(4, 4), GridDirection.SW);
+        grid.RemoveNeighbor(new GridIndex(3, 4), GridDirection.NW);
+        grid.RemoveNeighbor(new GridIndex(3, 4), GridDirection.SW);
+        grid.RemoveNeighbor(new GridIndex(2, 4), GridDirection.NW);
+        grid.RemoveNeighbor(new GridIndex(1, 3), GridDirection.N);
+        grid.RemoveNeighbor(new GridIndex(1, 3), GridDirection.NW);
+        grid.RemoveNeighbor(new GridIndex(1, 2), GridDirection.N);
 
         testPath.ForEach(p => grid.SelectIndex(p));
         List<GridIndex> actualPath = grid.GetSelectedPath();

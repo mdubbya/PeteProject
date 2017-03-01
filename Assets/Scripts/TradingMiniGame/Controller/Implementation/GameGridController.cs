@@ -87,6 +87,7 @@ namespace TradingMiniGame
 
         public void BuildGrid(int rows, int columns)
         {
+            
             _rows = rows;
             _columns = columns;
             _gridObjects = new Dictionary<GridIndex, IGridObject>();
@@ -94,8 +95,9 @@ namespace TradingMiniGame
             _neighbors = new Dictionary<GridIndex, Dictionary<GridDirection, GridIndex>>();
             _gameGrid.Setup(_rows, _columns);
             _selectedIndices.Push(start);
-            
-            if(_start==null)
+            ClearSelection();
+
+            if (_start==null)
             {
                 _start = new GridIndex(0, 0);
             }
@@ -114,7 +116,8 @@ namespace TradingMiniGame
                     foreach(GridDirection dir in Enum.GetValues(typeof(GridDirection)))
                     {
                         GridIndex neighborIndex = _indexInDirection[dir](index);
-                        if(neighborIndex.columnNumber>=0 && neighborIndex.rowNumber >=0)
+                        if(neighborIndex.columnNumber>=0 && neighborIndex.rowNumber >=0 &&
+                            neighborIndex.columnNumber< _columns && neighborIndex.rowNumber < _rows)
                         {
                             _neighbors[index][dir] = neighborIndex;
                         }
@@ -129,66 +132,57 @@ namespace TradingMiniGame
         public List<GridIndex> GetShortestPath()
         {
             Dictionary<GridIndex, float> distancesFromStart = new Dictionary<GridIndex, float>();
-            Dictionary<GridIndex,GridIndex> path = new Dictionary<GridIndex, GridIndex>();
+            Dictionary<GridIndex, GridIndex> path = new Dictionary<GridIndex, GridIndex>();
+            _gridObjects.Keys.ToList().ForEach(p => path.Add(p, new GridIndex(-1,-1)));
+
             _gridObjects.Keys.ToList().ForEach(p => distancesFromStart.Add(p, float.MaxValue));
             distancesFromStart[_start] = 0;
-
-            List<GridIndex> visited = new List<GridIndex>();
-            visited.Add(_start);
-
+            
             List<GridIndex> unVisited = new List<GridIndex>();
             _gridObjects.Keys.ToList().ForEach(p => unVisited.Add(p));
-            unVisited.Remove(_start);
-            IGridObject currentNode = this[_start];
             
-            while (currentNode != null)
+            while (unVisited.Count > 0)
             {
-                List<GridIndex> currentUnvisited = (from p in _neighbors[IndexOf(currentNode)].Values where unVisited.Contains(p) select p).ToList();
-                foreach (GridIndex unvisitedNode in currentUnvisited)
-                {
-                    float dist = distancesFromStart[IndexOf(currentNode)] + this[unvisitedNode].pathCost;
-                    
-                    if (dist < distancesFromStart[unvisitedNode])
-                    {
-                        distancesFromStart[unvisitedNode] = dist;
-                        if(path.ContainsKey(unvisitedNode))
-                        {
-                            path.Remove(unvisitedNode);
-                        }
-                        path.Add(unvisitedNode,IndexOf(currentNode));
-                    }
-                }
+                GridIndex next = unVisited.OrderBy(p => distancesFromStart[p]).First();
 
-                visited.Add(IndexOf(currentNode));
-                unVisited.Remove(IndexOf(currentNode));
-
-                if (visited.Contains(_end))
+                if (next == _end)
                 {
                     break;
                 }
+                unVisited.Remove(next);
 
-                currentNode = this[unVisited.OrderBy(p => distancesFromStart[p]).First()];
+                foreach (GridIndex neighborIndex in _neighbors[next].Values)
+                {
+                    float thisDistance = distancesFromStart[next] + this[neighborIndex].pathCost;
+                    if (thisDistance < distancesFromStart[neighborIndex])
+                    {
+                        distancesFromStart[neighborIndex] = thisDistance;
+                        path[neighborIndex] = next;
+                    }
+                }
             }
 
-            //unwind
-            List<GridIndex> returnedPath = new List<GridIndex>();
-            GridIndex endIndex = _end;
-            GridIndex next;
-            bool pathPossible = path.TryGetValue(endIndex, out next);
-            if (pathPossible)
+            Stack<GridIndex> s = new Stack<GridIndex>();
+            GridIndex u = _end;
+            while (true)
             {
-                returnedPath.Add(endIndex);
-                while (next != _start)
+                if (u != new GridIndex(-1,-1))
                 {
-                    returnedPath.Insert(0, next);
-                    next = path[next];
+                    s.Push(u);
+                    u = path[u];
                 }
+                else break;
+            }
+
+            float shortestDist = distancesFromStart[_end];
+            if (s.Count > 1)
+            {
+                return s.ToList();
             }
             else
             {
-                returnedPath = null;
+                return null;
             }
-            return returnedPath;
         }
 
 
@@ -202,7 +196,7 @@ namespace TradingMiniGame
             }
             else
             {
-                if (_neighbors[index].Values.Contains(_selectedIndices.Peek()))
+                if (_neighbors[_selectedIndices.Peek()].Values.Contains(index))
                 {
                     result = true;
                     _selectedIndices.Push(index);
