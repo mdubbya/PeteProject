@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 
 namespace TradingMiniGame
 {
-    public class GaussianDistributionRandomizer : MonoBehaviour, IGameGridSetupModifier
+    public class GaussianDistributionRandomizer : MonoBehaviour
     {
         private IGameGridController _gameGridController;
         public int maxPathCost;
@@ -28,6 +28,10 @@ namespace TradingMiniGame
         public void Initialize(IGameGridController gameGridController)
         {
             _gameGridController = gameGridController;
+            if (_gameGridController.rows > 0 && _gameGridController.columns > 0)
+            {
+                Modify();
+            }
         }
 
         public void Modify()

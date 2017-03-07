@@ -82,6 +82,7 @@ namespace TradingMiniGame
         public void Init(IGameGrid gameGrid, IFactory<IGridObject> gridObjectFactory)
         {
             _gameGrid = gameGrid;
+            BuildGrid(gameGrid.rows, gameGrid.columns);
         }
 
 
@@ -93,7 +94,7 @@ namespace TradingMiniGame
             _gridObjects = new Dictionary<GridIndex, IGridObject>();
             _selectedIndices = new Stack<GridIndex>();
             _neighbors = new Dictionary<GridIndex, Dictionary<GridDirection, GridIndex>>();
-            _gameGrid.Setup(_rows, _columns);
+            _gameGrid.Setup();
             _selectedIndices.Push(start);
             ClearSelection();
 

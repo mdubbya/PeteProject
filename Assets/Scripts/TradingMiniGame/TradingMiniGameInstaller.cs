@@ -30,7 +30,6 @@ public class TradingMiniGameInstaller : MonoInstaller<TradingMiniGameInstaller>
     {
         Container.Bind<IFactory<IGridObject>>().To<GridObjectFactory>();
         Container.Bind<IGameGrid>().To<IGameGrid>().FromInstance(gameGrid.GetComponent<IGameGrid>());
-        Container.Bind<IGameSetup>().To<IGameSetup>().FromInstance(gameGrid.GetComponent<IGameSetup>());
         Container.Bind<Vector3>().FromInstance(gridObjectPrefab.GetComponent<MeshRenderer>().bounds.size).WhenInjectedInto<IGameGrid>();
         Container.Bind<DiContainer>().FromInstance(Container).WhenInjectedInto<IFactory<IGridObject>>();
         Container.Bind<GameObject>().FromInstance(gridObjectPrefab).WhenInjectedInto<IFactory<IGridObject>>();

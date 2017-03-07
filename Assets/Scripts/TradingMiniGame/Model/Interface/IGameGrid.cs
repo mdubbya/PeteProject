@@ -9,6 +9,9 @@ namespace TradingMiniGame
     {
         IGridObject SpawnGridObject(GridIndex index);
 
-        void Setup(int rows, int columns);
+        int rows { get; }
+        int columns { get; }
+
+        void Setup();
     }
 }

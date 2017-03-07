@@ -20,6 +20,14 @@ namespace TradingMiniGame
         private Vector3 _tileSize;
         private IFactory<IGridObject> _gridObjectFactory;
 
+        [SerializeField]
+        private int _rows;
+        public int rows { get { return _rows; } }
+
+        [SerializeField]
+        private int _columns;
+        public int columns { get { return _columns; } }
+
         [Inject]
         public void Initialize(IGameGridController gameGridController, IFactory<IGridObject> gridObjectFactory, Vector3 tileSize)
         {
@@ -29,7 +37,7 @@ namespace TradingMiniGame
         }
 
 
-        public void Setup(int rows, int columns)
+        public void Setup()
         {
             if (_gridObjects != null)
             {
@@ -42,7 +50,7 @@ namespace TradingMiniGame
             _yOffset = _tileSize.y / 2;
             _xSpacing = _tileSize.x * 0.75f;
             _bottomLeft = gameObject.transform.position;
-            _bottomLeft = new Vector3(_bottomLeft.x - _xSpacing / 2 * (columns - 1), (_bottomLeft.y) - _ySpacing / 4 * (rows - 1), _bottomLeft.z);
+            _bottomLeft = new Vector3(_bottomLeft.x - _xSpacing / 2 * (_columns - 1), (_bottomLeft.y) - _ySpacing / 4 * (_rows - 1), _bottomLeft.z);
         }
 
 
@@ -96,6 +104,7 @@ namespace TradingMiniGame
                     }
                 }
             }
+            
             _gridObjects[_gameGridController.start].material = GameResources.Materials.Green;
             _gridObjects[_gameGridController.end].material = GameResources.Materials.Yellow;
         }
