@@ -58,7 +58,7 @@ namespace Common
             throw new NotImplementedException();
         }
 
-        public void Buy(IAssetOwner seller, Commodity commodity)
+        public void Buy(IAssetController seller, Commodity commodity)
         {
             throw new NotImplementedException();
         }
@@ -78,7 +78,7 @@ namespace Common
             throw new NotImplementedException();
         }
 
-        public void Sell(IAssetOwner buyer, Commodity commodity)
+        public void Sell(IAssetController buyer, Commodity commodity)
         {
             throw new NotImplementedException();
         }

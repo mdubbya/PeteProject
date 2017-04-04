@@ -1,6 +1,6 @@
 ﻿namespace Common
 {
-    public interface IPlayerAssetController : IAssetOwner
+    public interface IPlayerAssetController : IAssetController
     {
         float credits { get; }
     }

@@ -1,4 +1,5 @@
-﻿
+﻿using TradingSelection;
+
 namespace Common
 {
     public enum CommodityType
@@ -18,9 +19,9 @@ namespace Common
     {
         public readonly CommodityType commodityType;
         public readonly float value;
-        public readonly ISpacePortController location;
+        public readonly IAssetController location;
 
-        public Commodity(CommodityType commodityType, float value, ISpacePortController location)
+        public Commodity(CommodityType commodityType, float value, IAssetController location)
         {
             this.commodityType = commodityType;
             this.value = value;

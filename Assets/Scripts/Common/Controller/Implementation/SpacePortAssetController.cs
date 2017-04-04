@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Common
 { 
-    public class SpacePortAssetController : IAssetOwner
+    public class SpacePortAssetController : IAssetController
     {
         private Dictionary<CommodityType, Commodity> _pendingToBuy;
         public IDictionary<CommodityType, Commodity> pendingToBuy
@@ -69,7 +69,7 @@ namespace Common
         }
         
 
-        public void Buy(IAssetOwner seller, Commodity commodity)
+        public void Buy(IAssetController seller, Commodity commodity)
         {
             if (_demands.Contains(commodity.commodityType) && !_pendingToBuy.ContainsKey(commodity.commodityType))
             {
@@ -78,7 +78,7 @@ namespace Common
         }
 
 
-        public void Sell(IAssetOwner buyer, Commodity commodity)
+        public void Sell(IAssetController buyer, Commodity commodity)
         {
             if (buyer.Demands.Contains(commodity.commodityType) && !_pendingToSell.ContainsKey(commodity.commodityType))
             {

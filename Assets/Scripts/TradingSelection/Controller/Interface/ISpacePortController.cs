@@ -1,12 +1,10 @@
-﻿using Common;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace Common
+﻿
+namespace TradingSelection
 {
     public interface ISpacePortController
     {
-        void EstablishTradeLane();
+        void EstablishTradeLane(ISpacePortController otherPort);
+        void CancelTradeLane(ISpacePortController otherPort);
         bool TradeLaneEstablished(ISpacePortController otherPort);
     }
 }

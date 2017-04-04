@@ -3,22 +3,22 @@ using NUnit.Framework;
 using NSubstitute;
 using System.Collections.Generic;
 using System.Linq;
+using TradingSelection;
 
 [TestFixture]
 public class SpacePortAssetControllerTests
 {
-    ISpacePortController otherPartyLocation;
-    ISpacePortController controllerLocation;
-    IAssetOwner otherParty;
+    IAssetController otherPartyLocation;
+    IAssetController controllerLocation;
+    IAssetController otherParty;
     SpacePortAssetController controller;
 
     [SetUp]
     public void Setup()
     {
-        otherPartyLocation = Substitute.For<ISpacePortController>();
-        controllerLocation = Substitute.For<ISpacePortController>();
-        controllerLocation.TradeLaneEstablished(Arg.Any<ISpacePortController>()).Returns(true);
-        otherParty = Substitute.For<IAssetOwner>();
+        otherPartyLocation = Substitute.For<IAssetController>();
+        controllerLocation = Substitute.For<IAssetController>();
+        otherParty = Substitute.For<IAssetController>();
         controller = new SpacePortAssetController();
     }
 

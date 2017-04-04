@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Assets.Scripts.TradingSelection.Controller.Interface
+namespace TradingSelection
 {
-    interface ISpacePort
+    public interface ISceneDataController
     {
+        void SaveScene();
+        
     }
 }

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-
-class PlayerAssetControllerTests
+namespace TradingMiniGame
 {
+    public class TradingMiniGameSceneData
+    {
+    }
 }
-

@@ -4,13 +4,13 @@ using System.Collections.Generic;
 
 namespace Common
 {
-    public interface IAssetOwner
+    public interface IAssetController
     {
         IDictionary<CommodityType,Commodity> pendingToBuy { get; }
         IDictionary<CommodityType,Commodity> pendingToSell { get; }
         
-        void Buy(IAssetOwner seller, Commodity commodity);
-        void Sell(IAssetOwner buyer, Commodity commodity);
+        void Buy(IAssetController seller, Commodity commodity);
+        void Sell(IAssetController buyer, Commodity commodity);
         void AddSupply(Commodity commodity);
         void AddDemand(CommodityType commodityType);
 
