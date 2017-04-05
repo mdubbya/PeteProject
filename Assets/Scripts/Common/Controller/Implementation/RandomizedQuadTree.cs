@@ -30,7 +30,7 @@ namespace Common
         }
 
 
-        public int SplitRecursive(int maxDepth = 0)
+        public void SplitRecursive(int maxDepth = 0)
         {
             int splits = 0;
             if (maxDepth == 0 || _level < maxDepth)
@@ -45,12 +45,10 @@ namespace Common
                 {
                     if (node != null)
                     {
-                        splits += node.SplitRecursive(maxDepth);
+                        node.SplitRecursive(maxDepth);
                     }
                 }
             }
-            
-            return splits;
         }
 
 
@@ -86,18 +84,48 @@ namespace Common
 
         private void Split()
         {
-            float subWidth = Random.Range(_objectSize.x, _bounds.width - _objectSize.x);
-            float subWidth2 = Random.Range(_objectSize.x, _bounds.width - _objectSize.x);
-            float subHeight = Random.Range(_objectSize.y, _bounds.height - _objectSize.y);
+            float subWidth;
+            float subWidth2;
+            float subHeight;
+            if (_bounds.width < (_objectSize.x))
+            {
+                subWidth = _bounds.width;
+                subWidth2 = _bounds.width;
+            }
+            else
+            {
+                subWidth = Random.Range(_objectSize.x, _bounds.width - _objectSize.x);
+                subWidth2 = Random.Range(_objectSize.x, _bounds.width - _objectSize.x);
+            }
+            if(_bounds.height < (_objectSize.y))
+            {
+                subHeight = _bounds.height;
+            }
+            else
+            {
+                subHeight = Random.Range(_objectSize.y, _bounds.height - _objectSize.y);
+            }
+            
             float x = _bounds.x;
             float y = _bounds.y;
 
-            if (!((subWidth < _objectSize.x) || (Math.Abs(_bounds.width - subWidth) < _objectSize.x) ||
-               (subHeight < _objectSize.y) || (Math.Abs(_bounds.height - subHeight) < _objectSize.y)))
-            {                
+            if ((subWidth > _objectSize.x) && (subHeight > _objectSize.y))
+            {
                 _nodes[0] = new QuadTree(_level + 1, new Rect(x, y, subWidth, subHeight), _objectSize);
+                _isLeaf = false;
+            }
+            if((Math.Abs(_bounds.width - subWidth) > _objectSize.x) && (subHeight > _objectSize.y))
+            {
                 _nodes[1] = new QuadTree(_level + 1, new Rect(x + subWidth, y, Math.Abs(_bounds.width - subWidth), subHeight), _objectSize);
+                _isLeaf = false;
+            }
+            if ((Math.Abs(_bounds.width - subWidth2) > _objectSize.x) && Math.Abs(_bounds.height - subHeight) > _objectSize.y)
+            {
                 _nodes[2] = new QuadTree(_level + 1, new Rect(x + subWidth2, y + subHeight, Math.Abs(_bounds.width - subWidth2), Math.Abs(_bounds.height - subHeight)), _objectSize);
+                _isLeaf = false;
+            }
+            if((subWidth2 > _objectSize.x) && Math.Abs(_bounds.height - subHeight) > _objectSize.y)
+            {                
                 _nodes[3] = new QuadTree(_level + 1, new Rect(x, y + subHeight, subWidth2, Math.Abs(_bounds.height - subHeight)), _objectSize);
                 _isLeaf = false;
             }
