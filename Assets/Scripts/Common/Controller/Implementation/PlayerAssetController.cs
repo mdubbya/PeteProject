@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace Common
 {
+    [Serializable]
     public class PlayerAssetController : MonoBehaviour, IPlayerAssetController
     {
         public float credits
