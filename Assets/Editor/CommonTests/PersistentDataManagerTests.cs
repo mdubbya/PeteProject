@@ -7,29 +7,22 @@ using System;
 public class PersistentDataManagerTests
 {
     [Serializable]
-    private class SerializableTestClass
+    public class PersistentDataObjectTest : PersistentDataObject<PersistentDataObjectTest>
     {
         public int value { get; set; }
+        private PersistentDataObjectTest() { }
     }
-
-    private class NonSerializableTestClass
-    {
-        public int value { get; set; }
-    }
+    
 
     [Test]
     public void ReadWriteDataTest()
     {
-        SerializableTestClass test = new SerializableTestClass();
-        test.value = 10;
-        PersistentDataManager.SetData(test);
-        PersistentDataManager.WriteData();
-        PersistentDataManager.SetData<SerializableTestClass>(null);
-        PersistentDataManager.ReadData();
-
-        Assert.AreEqual(10, PersistentDataManager.GetData<SerializableTestClass>().value);
-
+        PersistentDataObjectTest.Instance.value = 10;
+        PersistentDataObjectTest.Instance.WriteData();
+        PersistentDataObjectTest.Instance.value = 0;
+        PersistentDataObjectTest.Instance.ReadData();
         
+        Assert.AreEqual(10, PersistentDataObjectTest.Instance.value);
     }
 }
 

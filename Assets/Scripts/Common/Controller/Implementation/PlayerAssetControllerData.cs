@@ -2,8 +2,7 @@
 
 namespace Common
 {
-    [Serializable]
-    public class PlayerAssetControllerData
+    public class PlayerAssetControllerData : PersistentDataObject<PlayerAssetControllerData>
     {
         public float credits
         {
