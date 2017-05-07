@@ -15,34 +15,23 @@ namespace Common
         private static Dictionary<Type, object> _registeredDataObjects = new Dictionary<Type, object>();
 
         [NonSerialized]
-        private string fileExtension = ".dat";
+        private static string fileExtension = ".dat";
 
-        public void ReadData()
+        public static void ReadData()
         {
-            Dictionary<Type, object> changes = new Dictionary<Type, object>();
-            foreach(var pair in _registeredDataObjects)
+            using (FileStream stream = new FileStream("gamedata" + fileExtension, FileMode.Open, FileAccess.Read))
             {
-                using (FileStream stream = new FileStream(pair.Key.Name + fileExtension, FileMode.Open, FileAccess.Read))
-                {
-                    BinaryFormatter formatter = new BinaryFormatter();
-                    changes[pair.Key] = formatter.Deserialize(stream);
-                }
-            }
-            foreach(var pair in changes)
-            {
-                _registeredDataObjects[pair.Key] = pair.Value;
+                BinaryFormatter formatter = new BinaryFormatter();
+                _registeredDataObjects = (Dictionary<Type,object>)formatter.Deserialize(stream);
             }
         }
 
-        public void WriteData()
+        public static void WriteData()
         {
-            foreach (var pair in _registeredDataObjects)
+            using (FileStream stream = new FileStream("gamedata" + fileExtension, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
-                using (FileStream stream = new FileStream(pair.Key.Name + fileExtension, FileMode.OpenOrCreate, FileAccess.ReadWrite))
-                {
-                    BinaryFormatter formatter = new BinaryFormatter();
-                    formatter.Serialize(stream, pair.Value);
-                }
+                BinaryFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(stream, _registeredDataObjects);
             }
         }
         
