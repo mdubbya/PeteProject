@@ -10,34 +10,74 @@ namespace Common
     public static class PersistentDataManager
     {
         [NonSerialized]
-        private static Dictionary<Type, object> _registeredDataObjects = new Dictionary<Type, object>();
-        
-        public static void RegisterDataObject<T>(T obj) where T : PersistentDataObject<T>
+        private static Dictionary<Type, object> _registeredSaveSlotDataObjects = new Dictionary<Type, object>();
+        [NonSerialized]
+        private static Dictionary<Type, object> _registeredGameOptionDataObjects = new Dictionary<Type, object>();
+
+        public static void RegisterSaveSlotDataObject<T>(T obj) where T : PersistentSaveSlotDataObject<T>
         {
-            _registeredDataObjects[typeof(T)] = obj;
+            _registeredSaveSlotDataObjects[typeof(T)] = obj;
         }
 
-        public static T Get<T>() where T : PersistentDataObject<T>
+
+        public static void RegisterGameOptionDataObject<T>(T obj) where T : PersistentGameOptionDataObject<T>
         {
-            return _registeredDataObjects.ContainsKey(typeof(T)) ? (T)_registeredDataObjects[typeof(T)]: null;
+            _registeredGameOptionDataObjects[typeof(T)] = obj;
         }
 
-        public static void ReadData(string fileName)
+
+        public static T GetSaveSlotDataObject<T>() where T : PersistentSaveSlotDataObject<T>
         {
-            using (FileStream stream = new FileStream(fileName + Constants.SaveSlotExtension, FileMode.Open, FileAccess.Read))
+            return _registeredSaveSlotDataObjects.ContainsKey(typeof(T)) ? (T)_registeredSaveSlotDataObjects[typeof(T)] : null;
+        }
+
+        public static T GetGameOptionDataObject<T>() where T : PersistentGameOptionDataObject<T>
+        {
+            return _registeredGameOptionDataObjects.ContainsKey(typeof(T)) ? (T)_registeredGameOptionDataObjects[typeof(T)] : null;
+        }
+
+
+        private static void WriteData(string fullFilePath, object objectToWrite)
+        {
+            using (FileStream stream = new FileStream(fullFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
                 BinaryFormatter formatter = new BinaryFormatter();
-                _registeredDataObjects = (Dictionary<Type, object>)formatter.Deserialize(stream);
+                formatter.Serialize(stream, objectToWrite);
             }
         }
 
-        public static void WriteData(string fileName)
+
+        private static object ReadData(string fullFilePath)
         {
-            using (FileStream stream = new FileStream(fileName + Constants.SaveSlotExtension, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            using (FileStream stream = new FileStream(fullFilePath, FileMode.Open, FileAccess.Read))
             {
                 BinaryFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(stream, _registeredDataObjects);
+                return formatter.Deserialize(stream);
             }
+        }
+
+
+        public static void ReadSaveSlotData(string baseFileName)
+        {
+            _registeredSaveSlotDataObjects = (Dictionary<Type, object>)ReadData(baseFileName + Constants.SaveSlotExtension);
+        }
+
+
+        public static void WriteSaveSlotData(string baseFileName)
+        {
+            WriteData(baseFileName + Constants.SaveSlotExtension, _registeredSaveSlotDataObjects);
+        }
+
+
+        public static void WriteGameOptionData()
+        {
+            WriteData(Constants.GameOptionsFileName, _registeredGameOptionDataObjects);
+        }
+
+
+        public static void ReadGameOptionData()
+        {
+            _registeredGameOptionDataObjects = (Dictionary<Type, object>)ReadData(Constants.GameOptionsFileName);
         }
     }
 }

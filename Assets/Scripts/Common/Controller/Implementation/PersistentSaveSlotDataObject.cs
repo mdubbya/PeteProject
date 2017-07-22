@@ -5,7 +5,7 @@ using System.Reflection;
 namespace Common
 {
     [Serializable]
-    public abstract class PersistentDataObject<T> where T : PersistentDataObject<T>
+    public abstract class PersistentSaveSlotDataObject<T> where T : PersistentSaveSlotDataObject<T>
     {        
         [NonSerialized]
         private static object initLock = new object();
@@ -14,11 +14,11 @@ namespace Common
         {
             get
             {
-                if (PersistentDataManager.Get<T>()==null)
+                if (PersistentDataManager.GetSaveSlotDataObject<T>()==null)
                 {
                     CreateInstance();
                 }
-                return PersistentDataManager.Get<T>();
+                return PersistentDataManager.GetSaveSlotDataObject<T>();
             }
         }
 
@@ -26,7 +26,7 @@ namespace Common
         {
             lock (initLock)
             {
-                if (PersistentDataManager.Get<T>()==null)
+                if (PersistentDataManager.GetSaveSlotDataObject<T>()==null)
                 {
                     Type t = typeof(T);
 
@@ -39,7 +39,7 @@ namespace Common
                     // Create an instance via the private constructor
                     var _Instance = (T)Activator.CreateInstance(t, true);
                     // Register instance
-                    PersistentDataManager.RegisterDataObject(_Instance);
+                    PersistentDataManager.RegisterSaveSlotDataObject(_Instance);
                 }
             }
         }

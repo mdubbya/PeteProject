@@ -7,6 +7,8 @@ namespace Common
 {
     public static class Constants
     {
-        public const string SaveSlotExtension = ".dat";    
+        public const string SaveSlotExtension = ".dat";
+
+        public const string GameOptionsFileName = "GameOptions.opt";
     }
 }

@@ -7,45 +7,67 @@ using System;
 public class PersistentDataTests
 {
     [Serializable]
-    public class PersistentDataObjectTestClass : PersistentDataObject<PersistentDataObjectTestClass>
+    public class PersistentSaveSlotDataObjectTestClass : PersistentSaveSlotDataObject<PersistentSaveSlotDataObjectTestClass>
     {
         public int value { get; set; }
-        private PersistentDataObjectTestClass() { }
+        private PersistentSaveSlotDataObjectTestClass() { }
     }
 
     [Serializable]
-    public class PersistentDataObjectTestClass2 : PersistentDataObject<PersistentDataObjectTestClass2>
+    public class PersistentGameOptionDataObjectTestClass : PersistentGameOptionDataObject<PersistentGameOptionDataObjectTestClass>
     {
         public int value { get; set; }
-        private PersistentDataObjectTestClass2() { }
+        private PersistentGameOptionDataObjectTestClass() { }
     }
 
     [Serializable]
-    public class PersistentDataObjectTestClass3 : PersistentDataObject<PersistentDataObjectTestClass3>
+    public class PersistentSaveSlotDataObjectTestClass2 : PersistentSaveSlotDataObject<PersistentSaveSlotDataObjectTestClass2>
+    {
+        public int value { get; set; }
+    }
+
+    [Serializable]
+    public class PersistentGameOptionDataObjectTestClas2 : PersistentGameOptionDataObject<PersistentGameOptionDataObjectTestClas2>
     {
         public int value { get; set; }
     }
 
     [Test]
-    public void ReadWriteDataTest()
+    public void ReadWriteSaveSlotDataTest()
     {
-        PersistentDataObjectTestClass.Instance.value = 10;
-        PersistentDataObjectTestClass2.Instance.value = 50;
-        PersistentDataManager.WriteData("test");
+        PersistentSaveSlotDataObjectTestClass.Instance.value = 10;
+        PersistentDataManager.WriteSaveSlotData("test");
 
-        PersistentDataObjectTestClass.Instance.value = 0;
-        PersistentDataObjectTestClass.Instance.value = 0;
+        PersistentSaveSlotDataObjectTestClass.Instance.value = 0;
 
-        PersistentDataManager.ReadData("test");
-        
-        Assert.AreEqual(10, PersistentDataObjectTestClass.Instance.value);
-        Assert.AreEqual(50, PersistentDataObjectTestClass2.Instance.value);
+        Assert.AreEqual(0, PersistentSaveSlotDataObjectTestClass.Instance.value);
+
+        PersistentDataManager.ReadSaveSlotData("test");
+
+        Assert.AreEqual(10, PersistentSaveSlotDataObjectTestClass.Instance.value);
+
+    }
+
+    [Test]
+    public void ReadWriteGameOptionDataTest()
+    {
+        PersistentGameOptionDataObjectTestClass.Instance.value = 10;
+        PersistentDataManager.WriteGameOptionData();
+
+        PersistentGameOptionDataObjectTestClass.Instance.value = 0;
+
+        Assert.AreEqual(0, PersistentGameOptionDataObjectTestClass.Instance.value);
+
+        PersistentDataManager.ReadGameOptionData();
+
+        Assert.AreEqual(10, PersistentGameOptionDataObjectTestClass.Instance.value);
     }
 
     [Test]
     public void PrivateConstructorTest()
     {
-        Assert.Throws(typeof(InvalidOperationException),() => { PersistentDataObjectTestClass3.Instance.value = 5; });
+        Assert.Throws(typeof(InvalidOperationException),() => { PersistentSaveSlotDataObjectTestClass2.Instance.value = 5; });
+        Assert.Throws(typeof(InvalidOperationException), () => { PersistentGameOptionDataObjectTestClas2.Instance.value = 5; });
     }
 }
 

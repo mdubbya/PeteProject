@@ -2,7 +2,7 @@
 
 namespace Common
 {
-    public class PlayerAssetControllerData : PersistentDataObject<PlayerAssetControllerData>
+    public class PlayerAssetControllerData : PersistentSaveSlotDataObject<PlayerAssetControllerData>
     {
         public float credits
         {
